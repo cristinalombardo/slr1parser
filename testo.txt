@@ -1,0 +1,9 @@
+Data una grammatica non contestuale verificare che:
+	1. La grammatica non contestuale sia di tipo SLR(1)
+
+Nel caso che la grammatica non sia SLR(1) salvare su un file ERRORE le condizioni di conflitto.
+Nel caso la grammatica soddisfi le condizioni generare le tabelle GOTO ed ACTION e salvarle su un file OUTPUT.TXT. Il formato del file è libero.
+Frase appartiene al linguaggio di ingresso.
+
+File di input: Grammatica non contestuale
+Il file di input contiene la grammatica non contestuale nella forma BNF Estesa (http://www.cs.cmu.edu/~pattis/misc/ebnf.pdf) . Ogni produzione è etichettata con un etichetta numerica seguita dal simbolo   “:”.
