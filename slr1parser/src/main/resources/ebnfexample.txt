@@ -1,3 +1,15 @@
+# Created by Cristina Lombardo
+# Rules
+# 	"#" Comments
+# 	/ :Escape char
+# 	<E>, <F>, <T>, <X>: Non Terminal 
+# 	i, +, -, ^: Terminals
+# 	//: Escaped / used as terminal
+# 	/(: Special Char ( escaped used as terminal
+# 	() [] {} |: Special chars
+##########
+# Grammar
+
 1: <E> ::= <T> {(+|-) <T>}
 2: <T> ::= <F> {(*|//) <F>}
 3: <F> ::= <X> [ ^ <F>]
