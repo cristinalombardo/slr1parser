@@ -9,17 +9,22 @@ import java.util.Set;
 public class Grammar implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	public static final String INTERNAL_NON_TERMINAL = "IN";
+	public static final Terminal EPS = new Terminal("eps");
 	
 	private Set<NonTerminal> nonTerminals;
 	private Set<Terminal> terminals;
 	private List<Production> productions;
 	private Production axiom;
 	
+	private int nonTerminalCounter;
+	
 	public Grammar() {
 		super();
 		this.nonTerminals = new HashSet<NonTerminal>();
 		this.terminals = new HashSet<Terminal>();
 		this.productions = new ArrayList<Production>();
+		this.nonTerminalCounter = 1;
 	}
 
 	public Set<NonTerminal> getNonTerminals() {
@@ -63,7 +68,17 @@ public class Grammar implements Serializable {
 	}
 	
 	public void addNonTerminal (NonTerminal nt) {
-		this.nonTerminals.add (nt);		
+		this.nonTerminals.add(nt);		
+	}
+	
+	public NonTerminal getNewNonTerminal() {
+		NonTerminal nt = new NonTerminal(INTERNAL_NON_TERMINAL + nonTerminalCounter++);
+		
+		while(nonTerminals.contains(nt)) 
+			nt = new NonTerminal(INTERNAL_NON_TERMINAL + nonTerminalCounter++);
+		
+		this.addNonTerminal(nt);
+		return nt;
 	}
 	
 	@Override

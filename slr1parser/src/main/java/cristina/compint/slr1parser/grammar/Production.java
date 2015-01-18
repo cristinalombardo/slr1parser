@@ -7,6 +7,7 @@ import java.util.List;
 public class Production implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	public static final String ASSIGNMENT_STRING = "::=";
 	
 	private NonTerminal left;
 	private List<Element> right;

@@ -10,23 +10,27 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import cristina.compint.slr1parser.exception.ParserSintaxException;
+import cristina.compint.slr1parser.grammar.Grammar;
 import cristina.compint.slr1parser.grammar.GrammarUtils;
+import cristina.compint.slr1parser.grammar.NonTerminal;
+import cristina.compint.slr1parser.grammar.Production;
 
 public class Main {
 
 	public static void main(String[] args) throws MalformedURLException, URISyntaxException {
-		
+
 		System.out.println("Usage: java -jar slr1parser.jar [grammar-file]\n"
 				+ "\t[grammar-file]: if not set we use an example grammar\n");
-		
-		
+
+
 		Path grammarPath = null;
-		
+
 		if(args.length > 0) {
 			grammarPath = Paths.get(args[0]);
 		} else {
 			URL url = Main.class.getResource("/ebnfexample.txt");
-			
+
 			grammarPath = Paths.get(url.toURI());//"ebnfexample.txt");
 			try {
 				System.out.println("Example file\n");
@@ -35,19 +39,38 @@ public class Main {
 				e.printStackTrace();
 			}
 		}
-		
+
 		try {
 			List<String> grammarLines = 
 					Files.lines(grammarPath)
-						.filter(x -> !x.startsWith("#") && !x.isEmpty())
-						.collect(Collectors.toList());
+					.filter(x -> !x.startsWith("#") && !x.isEmpty())
+					.collect(Collectors.toList());
+
+			Grammar g =	GrammarUtils.convertToGrammar(grammarLines);
+
+			System.out.print("\nNon terminals list: ");
+			for(NonTerminal pippo: g.getNonTerminals()) {
+				System.out.print(pippo.getLabel() + " ");
+			}
+
+			System.out.println();
+
+			System.out.print("\nProduction left side: ");
+			for(Production p: g.getProductions()) {
+				
+				System.out.print(p.getLeft().getLabel() + " ");
+			}
 			
-			GrammarUtils.convertToGrammar(grammarLines);
+			System.out.println();
 			
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (ParserSintaxException e) {
+			System.out.println("Parser error: check the input file.");
+			System.out.println("Error line: " + e.getLine());
+			System.out.println("Error message: " + e.getMessage());
 		} 
-		
+
 	}
 
 }

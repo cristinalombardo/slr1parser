@@ -8,6 +8,15 @@ public class Element implements Serializable {
 	
 	private String label;
 	
+	public Element() {
+		super();
+	}
+	
+	public Element(String label) {
+		super();
+		this.label = label;
+	}
+
 	public String getLabel() {
 		return label;
 	}
