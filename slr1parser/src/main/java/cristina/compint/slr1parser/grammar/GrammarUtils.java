@@ -87,7 +87,7 @@ public class GrammarUtils {
 				}
 				if(i == rightSide.length()) 
 					throw new ParserSintaxException("Unclosed non teminal", rightSide);
-				
+				 
 				NonTerminal nt = new NonTerminal(rightSide.substring(start, i));
 				if(!grammar.getNonTerminals().contains(nt))
 					throw new ParserSintaxException("Unespected non teminal", rightSide);
@@ -102,7 +102,7 @@ public class GrammarUtils {
 			case ']':
 				throw new ParserSintaxException("Unespected unescaped symbol " + rightSide.charAt(i), rightSide);
 			case '(':
-				//TODO or
+				//TODO
 				break;
 			case '{':
 				//TODO kleen star
