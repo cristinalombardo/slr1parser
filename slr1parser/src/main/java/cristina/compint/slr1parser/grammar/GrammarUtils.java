@@ -72,44 +72,64 @@ public class GrammarUtils {
 		grammar.addProduction(p);
 	}
 	
-	private static List<Element> getRightSide(Grammar grammar, String rightSide) {
-		List<Element> nonTerminals = new ArrayList<Element>();
+	private static List<Element> getRightSide(Grammar grammar, String rightSide) throws ParserSintaxException {
+		List<Element> rightSideElements = new ArrayList<Element>();
 		
 		for(int i = 0; i < rightSide.length(); i++) {
 			switch (rightSide.charAt(i)) {
 			case ' ':
-				
 				break;
 			case '<':
+				i++;
+				int start = i;
+				while(rightSide.charAt(i) == '>' && i < rightSide.length()) {
+					i++;
+				}
+				if(i == rightSide.length()) 
+					throw new ParserSintaxException("Unclosed non teminal", rightSide);
+				
+				NonTerminal nt = new NonTerminal(rightSide.substring(start, i));
+				if(!grammar.getNonTerminals().contains(nt))
+					throw new ParserSintaxException("Unespected non teminal", rightSide);
+				rightSideElements.add(nt);
 				break;
 			case '>':
-				break;
 			case ':':
-				break;
-			case '\\':
-				break;
 			case '=':
-				break;
-			case '(':
-				break;
 			case '|':
-				break;
 			case ')':
+			case '}':
+			case ']':
+				throw new ParserSintaxException("Unespected unescaped symbol " + rightSide.charAt(i), rightSide);
+			case '(':
+				//TODO or
 				break;
 			case '{':
-				break;
-			case '}':
+				//TODO kleen star
 				break;
 			case '[':
+				//TODO 0 or 1
 				break;
-			case ']':
-				break;
+			case '\\':
+				i++;
+				if(i == rightSide.length()) 
+					throw new ParserSintaxException("Unespected symbol \\", rightSide);
 			default:
+				Terminal terminal = new Terminal(rightSide.substring(i, i+1));
+				grammar.addTerminal(terminal);
+				rightSideElements.add(terminal);
 				break;
 			}
 		}
 		
-		return nonTerminals;
-		
+		return rightSideElements;
+	}
+	
+	public static String getParenthesisSubstring(String source, char open, char close) {
+		int parenthesisCount = 0;
+		int start = -1;
+		int end = -1;
+		//TODO
+		return source.substring(start, end);
 	}
 }

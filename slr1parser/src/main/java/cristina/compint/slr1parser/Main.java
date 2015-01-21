@@ -4,10 +4,13 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import cristina.compint.slr1parser.exception.ParserSintaxException;
@@ -30,9 +33,14 @@ public class Main {
 			grammarPath = Paths.get(args[0]);
 		} else {
 			URL url = Main.class.getResource("/ebnfexample.txt");
-
-			grammarPath = Paths.get(url.toURI());//"ebnfexample.txt");
+			
 			try {
+				Map<String, String> env = new HashMap<>(); 
+				env.put("create", "true");
+				
+				//Comments if you run the project into eclipse
+				FileSystems.newFileSystem(url.toURI(), env);
+				grammarPath = Paths.get(url.toURI());//"ebnfexample.txt");
 				System.out.println("Example file\n");
 				Files.lines(grammarPath).forEach(System.out::println);
 			} catch (IOException e) {
