@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,7 +38,7 @@ public class Main {
 				env.put("create", "true");
 				
 				//Comments if you run the project into eclipse
-				FileSystems.newFileSystem(url.toURI(), env);
+//				FileSystems.newFileSystem(url.toURI(), env);
 				grammarPath = Paths.get(url.toURI());//"ebnfexample.txt");
 				System.out.println("Example file\n");
 				Files.lines(grammarPath).forEach(System.out::println);
@@ -66,7 +65,7 @@ public class Main {
 			System.out.print("\nProduction left side: ");
 			for(Production p: g.getProductions()) {
 				
-				System.out.print(p.getLeft().getLabel() + " ");
+				System.out.println(p);
 			}
 			
 			System.out.println();
@@ -77,6 +76,7 @@ public class Main {
 			System.out.println("Parser error: check the input file.");
 			System.out.println("Error line: " + e.getLine());
 			System.out.println("Error message: " + e.getMessage());
+			e.printStackTrace();
 		} 
 
 	}

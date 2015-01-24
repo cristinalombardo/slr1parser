@@ -25,6 +25,7 @@ public class Grammar implements Serializable {
 		this.terminals = new HashSet<Terminal>();
 		this.productions = new ArrayList<Production>();
 		this.nonTerminalCounter = 1;
+		this.addTerminal(EPS);
 	}
 
 	public Set<NonTerminal> getNonTerminals() {
@@ -71,7 +72,7 @@ public class Grammar implements Serializable {
 		this.nonTerminals.add(nt);		
 	}
 	
-	public NonTerminal getNewNonTerminal() {
+	public NonTerminal getNewGrammarNonTerminal() {
 		NonTerminal nt = new NonTerminal(INTERNAL_NON_TERMINAL + nonTerminalCounter++);
 		
 		while(nonTerminals.contains(nt)) 

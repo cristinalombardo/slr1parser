@@ -26,6 +26,11 @@ public class Element implements Serializable {
 	}
 
 	@Override
+	public String toString() {
+		return "" + label + "";
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

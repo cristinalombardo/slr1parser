@@ -33,8 +33,13 @@ public class Production implements Serializable {
 		this.right = right;
 	}
 	
-	public void addElement (Element e){
+	public void addRightElement (Element e){
 		this.right.add(e);
+	}
+	
+	@Override
+	public String toString() {
+		return "Production " + left + "->" + right + "";
 	}
 
 	@Override
