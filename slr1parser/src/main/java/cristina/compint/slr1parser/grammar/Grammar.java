@@ -9,13 +9,15 @@ import java.util.Set;
 public class Grammar implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	public static final String INTERNAL_NON_TERMINAL = "IN";
-	public static final Terminal EPS = new Terminal("eps");
+	public static final String INTERNAL_NON_TERMINAL = "N";
+	public static final Terminal EPS = new Terminal(">EPS<");
+	public static final Terminal END_LINE = new Terminal(">$<");
+	public static final NonTerminal AXIOM = new NonTerminal("AX"); 
 	
 	private Set<NonTerminal> nonTerminals;
 	private Set<Terminal> terminals;
 	private List<Production> productions;
-	private Production axiom;
+	private Production axiomProduction;
 	
 	private int nonTerminalCounter;
 	
@@ -52,14 +54,14 @@ public class Grammar implements Serializable {
 		this.productions = productions;
 	}
 
-	public Production getAxiom() {
-		return axiom;
+	public Production getAxiomProduction() {
+		return axiomProduction;
 	}
 
-	public void setAxiom(Production axiom) {
-		this.axiom = axiom;
+	public void setAxiomProduction(Production axiomProduction) {
+		this.axiomProduction = axiomProduction;
 	}
-	
+
 	public void addProduction(Production p) {
 		this.productions.add(p);
 	}
@@ -82,11 +84,24 @@ public class Grammar implements Serializable {
 		return nt;
 	}
 	
+	public NonTerminal findNonTerminl(String label) {
+		NonTerminal nt = null;
+		for(NonTerminal n: this.nonTerminals) {
+			if(n.getLabel().equals(label)) {
+				nt = n;
+				break;
+			}
+				
+		}
+			
+		return nt;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((axiom == null) ? 0 : axiom.hashCode());
+		result = prime * result + ((AXIOM == null) ? 0 : AXIOM.hashCode());
 		result = prime * result
 				+ ((nonTerminals == null) ? 0 : nonTerminals.hashCode());
 		result = prime * result
@@ -105,10 +120,10 @@ public class Grammar implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Grammar other = (Grammar) obj;
-		if (axiom == null) {
-			if (other.axiom != null)
+		if (axiomProduction == null) {
+			if (other.axiomProduction != null)
 				return false;
-		} else if (!axiom.equals(other.axiom))
+		} else if (!axiomProduction.equals(other.axiomProduction))
 			return false;
 		if (nonTerminals == null) {
 			if (other.nonTerminals != null)

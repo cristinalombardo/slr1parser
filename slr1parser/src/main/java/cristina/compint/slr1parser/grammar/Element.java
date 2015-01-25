@@ -2,15 +2,11 @@ package cristina.compint.slr1parser.grammar;
 
 import java.io.Serializable;
 
-public class Element implements Serializable {
+public abstract class Element implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
 	private String label;
-	
-	public Element() {
-		super();
-	}
 	
 	public Element(String label) {
 		super();
@@ -27,7 +23,7 @@ public class Element implements Serializable {
 
 	@Override
 	public String toString() {
-		return "" + label + "";
+		return label;
 	}
 
 	@Override

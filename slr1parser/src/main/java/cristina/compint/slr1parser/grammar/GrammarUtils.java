@@ -1,8 +1,9 @@
 package cristina.compint.slr1parser.grammar;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.regex.Matcher;
+import java.util.Set;
 
 import cristina.compint.slr1parser.exception.ParserSintaxException;
 
@@ -10,22 +11,27 @@ public class GrammarUtils {
 
 	public static Grammar convertToGrammar(List<String> grammarLines) throws ParserSintaxException {
 		Grammar grammar = new Grammar();
-		// Extract the NonTerminals from input lines
-
+		//Extract production
 		for (String line: grammarLines){
-			extractNonTerminal(grammar, line); 
+			extractProduction(grammar, line);
 		}
 
-		for (String line: grammarLines){
-			String lineToParse = line.substring(line.indexOf(":") + 1);
-			extractProduction(grammar, lineToParse);
-		}
+		//Axiom creation
+		Production axiomProduction = new Production();
+		axiomProduction.setLeft(Grammar.AXIOM);
+		axiomProduction.addRightElement(grammar.getProductions().get(0).getLeft());
+		axiomProduction.addRightElement(Grammar.END_LINE);
 
-		//TODO Add axiom
+		grammar.setAxiomProduction(axiomProduction);
+
+		//Calculate first and follow
+		calculateFirstAndFollow(grammar);
+
 		return grammar;
 	}
 
-	private static void extractNonTerminal(Grammar grammar, String line) throws ParserSintaxException{
+	private static void extractProduction(Grammar grammar, String line) throws ParserSintaxException{
+
 		int lineSeparatorIndex = line.indexOf(":");
 
 		if (lineSeparatorIndex < 1) {
@@ -41,35 +47,26 @@ public class GrammarUtils {
 
 		String lineToParse = line.substring(lineSeparatorIndex + 1);
 
-		Matcher matcher = NonTerminal.NON_TERMINAL_PATTERN.matcher(lineToParse);
-		NonTerminal nt;
-		String ntString;
-		while (matcher.find()) {
-			ntString = matcher.group(); 
-			nt = new NonTerminal(ntString.substring(1, ntString.length()-1));
-			grammar.addNonTerminal(nt);
-		}
-
-	}
-
-	private static void extractProduction(Grammar grammar, String line) throws ParserSintaxException{
-
-		String[] productionString = line.split(Production.ASSIGNMENT_STRING);
+		String[] productionString = lineToParse.split(Production.ASSIGNMENT_STRING);
 
 		if(productionString.length != 2)
 			throw new ParserSintaxException("A production must be in format like <T> ::= <T>|a", line);
 
 		String leftSide = productionString[0].replaceAll(" ", "");
-		NonTerminal leftNt = new NonTerminal(leftSide.substring(1, leftSide.length() - 1));
-		if(!grammar.getNonTerminals().contains(leftNt))
-			throw new ParserSintaxException("Left side of production do not cotains a single non terminal.", line);
+
+
+		String ntLabel = leftSide.substring(1, leftSide.length() - 1);
+		if(!NonTerminal.NON_TERMINAL_PATTERN.matcher(ntLabel).matches())
+			throw new ParserSintaxException("Unespected non teminal " + ntLabel, line);
+		NonTerminal leftNt = new NonTerminal(ntLabel);
+		grammar.addNonTerminal(leftNt);
 
 		Production p = new Production();
-
+		grammar.addProduction(p);
 		p.setLeft(leftNt);
 		p.setRight(getRightSide(grammar, leftNt, productionString[1]));
 
-		grammar.addProduction(p);
+
 	}
 
 	private static List<Element> getRightSide(Grammar grammar, NonTerminal leftNt, String rightSide) throws ParserSintaxException {
@@ -82,15 +79,22 @@ public class GrammarUtils {
 			case '<':
 				i++;
 				int start = i;
-				while(rightSide.charAt(i) != '>' && i < rightSide.length()) {
+				while(i < rightSide.length() && rightSide.charAt(i) != '>') {
 					i++;
 				}
-				if(i == rightSide.length()) 
+
+				if(i >= rightSide.length()) 
 					throw new ParserSintaxException("Unclosed non teminal", rightSide);
 
-				NonTerminal nt = new NonTerminal(rightSide.substring(start, i));
-				if(!grammar.getNonTerminals().contains(nt))
-					throw new ParserSintaxException("Unespected non teminal " + nt.getLabel(), rightSide);
+				String ntLabel = rightSide.substring(start, i);
+				if(!NonTerminal.NON_TERMINAL_PATTERN.matcher(ntLabel).matches())
+					throw new ParserSintaxException("Unespected non teminal " + ntLabel, rightSide);
+
+				NonTerminal nt = grammar.findNonTerminl(ntLabel);
+				if(nt == null) {
+					nt = new NonTerminal(ntLabel);
+					grammar.addNonTerminal(nt);
+				}
 				rightSideElements.add(nt);
 				break;
 			case '>':
@@ -103,83 +107,69 @@ public class GrammarUtils {
 			case '|':
 			{
 				Production pOr = new Production();
+				grammar.addProduction(pOr);
 				pOr.setLeft(leftNt);
 				pOr.setRight(getRightSide(grammar, leftNt, rightSide.substring(i+1)));
-				grammar.addProduction(pOr);
+
 				i = rightSide.length(); //FOR EXIT
 			}
 			break;
 			case '(':
 			{
-				
+
 				i++;
 				int offset = getParenthesisSubstringIndex(rightSide.substring(i), '(', ')');
 				String nestedRighSide = rightSide.substring(i, i + offset);
-				i += (offset + 1);
-				System.out.println("Nested: " + nestedRighSide);
+				i += (offset);
 				NonTerminal newNt = grammar.getNewGrammarNonTerminal();
 				rightSideElements.add(newNt);
 				Production pNested = new Production();
+				grammar.addProduction(pNested);
 				pNested.setLeft(newNt);
 				pNested.setRight(getRightSide(grammar, newNt, nestedRighSide));
-				grammar.addProduction(pNested);
 			}
 			break;
 			case '{':
 			{
-				
-				
 				i++;
 				int offset = getParenthesisSubstringIndex(rightSide.substring(i), '{', '}');
 				String nestedRighSide = rightSide.substring(i, i + offset);
-				i += (offset + 1);
-				System.out.println("Nested: " + nestedRighSide);
+				i += (offset);
 				NonTerminal kleenNt = grammar.getNewGrammarNonTerminal();
 				rightSideElements.add(kleenNt);
-				
-				NonTerminal newNt = grammar.getNewGrammarNonTerminal();
-				Production pNested = new Production();
-				pNested.setLeft(newNt);
-				pNested.setRight(getRightSide(grammar, newNt, nestedRighSide));
-				grammar.addProduction(pNested);
-				
+
 				Production p1kleen = new Production();
-				p1kleen.setLeft(kleenNt);
-				p1kleen.addRightElement(newNt);
-				p1kleen.addRightElement(kleenNt);
 				grammar.addProduction(p1kleen);
-				
+				p1kleen.setLeft(kleenNt);
+				p1kleen.setRight(getRightSide(grammar, kleenNt, nestedRighSide));
+				p1kleen.addRightElement(kleenNt);
+
 				Production p2kleen = new Production();
+				grammar.addProduction(p2kleen);
 				p2kleen.setLeft(kleenNt);
 				p2kleen.addRightElement(Grammar.EPS);
-				grammar.addProduction(p2kleen);
 			}
 			break;
 			case '[':
 			{
 				i++;
-				int offset = getParenthesisSubstringIndex(rightSide.substring(i), '{', '}');
+				int offset = getParenthesisSubstringIndex(rightSide.substring(i), '[', ']');
 				String nestedRighSide = rightSide.substring(i, i + offset);
-				i += (offset + 1);
-				
+				i += (offset);
+
 				NonTerminal oneOrZeroNt = grammar.getNewGrammarNonTerminal();
 				rightSideElements.add(oneOrZeroNt);
-				
-				NonTerminal newNt = grammar.getNewGrammarNonTerminal();
+
 				Production pNested = new Production();
-				pNested.setLeft(newNt);
-				pNested.setRight(getRightSide(grammar, newNt, nestedRighSide));
 				grammar.addProduction(pNested);
-				
-				Production p1kleen = new Production();
-				p1kleen.setLeft(oneOrZeroNt);
-				p1kleen.addRightElement(newNt);
-				grammar.addProduction(p1kleen);
-				
-				Production p2kleen = new Production();
-				p2kleen.setLeft(oneOrZeroNt);
-				p2kleen.addRightElement(Grammar.EPS);
-				grammar.addProduction(p2kleen);
+				pNested.setLeft(oneOrZeroNt);
+				pNested.setRight(getRightSide(grammar, oneOrZeroNt, nestedRighSide));
+
+
+				Production p2oneOrZero = new Production();
+				grammar.addProduction(p2oneOrZero);
+				p2oneOrZero.setLeft(oneOrZeroNt);
+				p2oneOrZero.addRightElement(Grammar.EPS);
 			}
 			break;
 			case '\\':
@@ -210,11 +200,109 @@ public class GrammarUtils {
 				end = i;
 				break;
 			}
-
 		}
 		if(end == -1)
 			throw new ParserSintaxException("Could not find end parenthesy of " + open, source);
 
 		return end;
+	}
+
+	public static void calculateFirstAndFollow(Grammar grammar) {
+
+		for(NonTerminal nt: grammar.getNonTerminals()) {
+			nt.setFirst(first(grammar, nt));
+		}
+
+		for(NonTerminal nt: grammar.getNonTerminals()) {
+			nt.setFollow(follow(grammar, nt, new ArrayList<NonTerminal>()));
+		}
+	}
+
+	public static Set<Terminal> first(Grammar grammar, NonTerminal nt) {
+		if ( nt.getFirst() != null )
+			return nt.getFirst();
+
+		Set<Terminal> firstSet = new HashSet<Terminal>();
+		for (int i = 0; i < grammar.getProductions().size(); i++) {
+			Production p = grammar.getProductions().get(i);
+			if(p.getLeft().equals(nt)) {
+				for(Element e: p.getRight()) {
+					if(e instanceof Terminal) {
+						firstSet.add((Terminal) e);
+						break;
+					} else {
+						NonTerminal nt1 = (NonTerminal) e;
+						if (nt1.getFirst() == null) {
+							nt1.setFirst(first(grammar, nt1));
+						}
+						Set<Terminal> nt1First = new HashSet<Terminal>(nt1.getFirst()); 
+						if(i < (grammar.getProductions().size() -1)) {
+							nt1First.remove(Grammar.EPS);
+						}
+						firstSet.addAll(nt1First);
+						if(!nt1.getFirst().contains(Grammar.EPS)) {
+							break;
+						}
+					}
+				}
+			}
+		}
+		return firstSet;
+	}
+
+	public static Set<Terminal> follow(Grammar grammar, NonTerminal nt, List<NonTerminal> trace) {
+		if ( nt.getFollow() != null)
+			return nt.getFollow();
+		
+
+		Set<Terminal> followSet = new HashSet<Terminal>();
+		if(trace.contains(nt)) {
+			for(NonTerminal ntrace: trace) {
+				if(ntrace.getFollow() != null)
+					followSet.addAll(ntrace.getFollow());
+			}
+			return followSet;
+		}
+		trace.add(nt);
+		List<Production> productions = new ArrayList<Production>(grammar.getProductions());
+		productions.add(grammar.getAxiomProduction());
+
+		for ( Production p: productions) {
+			int index = p.getRight().indexOf(nt);
+			if(index >= 0) {
+				if( index == p.getRight().size() - 1) {
+					NonTerminal nt1 = p.getLeft();
+					if(nt1.equals(nt))
+						continue;
+					if( nt1.getFollow() == null)
+						nt1.setFollow(follow(grammar, nt1, trace));
+
+					followSet.addAll(nt1.getFollow());
+
+				} else {
+					for(int i = (index + 1); i < p.getRight().size(); i++) {
+						Element e = p.getRight().get(i);
+						if(e instanceof Terminal) {
+							followSet.add((Terminal) e);
+							break;
+						} else {
+							NonTerminal nt1 = (NonTerminal) e;
+							followSet.addAll(nt1.getFirst());
+							if ( nt1.getFirst().contains(Grammar.EPS) ) {
+								if( i == (p.getRight().size() - 1) ) {
+									if( nt1.getFollow() == null)
+										nt1.setFollow(follow(grammar, nt1, trace));
+									followSet.addAll(nt1.getFollow());
+								}
+							} else {
+								break;
+							}
+						}	
+					}
+				}
+			}
+		}
+		return followSet;
+
 	}
 }

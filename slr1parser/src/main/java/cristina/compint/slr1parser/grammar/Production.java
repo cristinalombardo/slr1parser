@@ -39,7 +39,13 @@ public class Production implements Serializable {
 	
 	@Override
 	public String toString() {
-		return "Production " + left + "->" + right + "";
+		StringBuilder sb = new StringBuilder(left.toString());
+		sb.append("\t->\t");
+		for(Element e: right) {
+			sb.append(e.toString());
+			sb.append(" ");
+		}
+		return sb.toString();
 	}
 
 	@Override

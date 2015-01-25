@@ -7,9 +7,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import cristina.compint.slr1parser.exception.ParserSintaxException;
@@ -27,48 +25,62 @@ public class Main {
 
 
 		Path grammarPath = null;
-
+		//Step 1: reading input file
 		if(args.length > 0) {
 			grammarPath = Paths.get(args[0]);
 		} else {
 			URL url = Main.class.getResource("/ebnfexample.txt");
-			
 			try {
+				/*
+				 * Comments if you run the project into eclipse
 				Map<String, String> env = new HashMap<>(); 
 				env.put("create", "true");
-				
-				//Comments if you run the project into eclipse
-//				FileSystems.newFileSystem(url.toURI(), env);
-				grammarPath = Paths.get(url.toURI());//"ebnfexample.txt");
-				System.out.println("Example file\n");
+				FileSystems.newFileSystem(url.toURI(), env); 
+				*/
+				grammarPath = Paths.get(url.toURI());
+				System.out.println("Example file");
+				System.out.println("============================");
 				Files.lines(grammarPath).forEach(System.out::println);
+				System.out.println("============================");
 			} catch (IOException e) {
 				e.printStackTrace();
+				return;
 			}
 		}
 
 		try {
+			//Step 2: filter comments and blank lines from input file
 			List<String> grammarLines = 
 					Files.lines(grammarPath)
 					.filter(x -> !x.startsWith("#") && !x.isEmpty())
 					.collect(Collectors.toList());
 
+			//Step 3: Extract grammar from EBNF format
 			Grammar g =	GrammarUtils.convertToGrammar(grammarLines);
-
-			System.out.print("\nNon terminals list: ");
-			for(NonTerminal pippo: g.getNonTerminals()) {
-				System.out.print(pippo.getLabel() + " ");
-			}
-
-			System.out.println();
-
-			System.out.print("\nProduction left side: ");
+			
+			
+			System.out.println("\nNon terminals list: " + g.getNonTerminals());
+			System.out.println("Terminals list: " + g.getTerminals());
+			
+			
+			System.out.println("\nGrammar Productions: \n" + g.getAxiomProduction());
+			
 			for(Production p: g.getProductions()) {
 				
 				System.out.println(p);
 			}
 			
-			System.out.println();
+			System.out.println("\nFirst set of non teminals:");
+			for(NonTerminal nt: g.getNonTerminals()) {
+				System.out.println(nt.toString() + "\t:\t" + nt.getFirst().toString()); 
+			}
+			
+			System.out.println("\nFollow set of non teminals:");
+			for(NonTerminal nt: g.getNonTerminals()) {
+				if(nt.getFollow() != null)
+					System.out.println(nt.toString() + "\t:\t" + nt.getFollow().toString()); 
+			}
+			
 			
 		} catch (IOException e) {
 			e.printStackTrace();
