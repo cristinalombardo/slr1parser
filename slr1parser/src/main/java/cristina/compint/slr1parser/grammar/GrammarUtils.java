@@ -138,16 +138,21 @@ public class GrammarUtils {
 				NonTerminal kleenNt = grammar.getNewGrammarNonTerminal();
 				rightSideElements.add(kleenNt);
 
+				Production p2kleen = new Production();
+				
+				p2kleen.setLeft(kleenNt);
+				p2kleen.addRightElement(Grammar.EPS);
+				
 				Production p1kleen = new Production();
+				
 				grammar.addProduction(p1kleen);
+				grammar.addProduction(p2kleen);
+				
 				p1kleen.setLeft(kleenNt);
 				p1kleen.setRight(getRightSide(grammar, kleenNt, nestedRighSide));
 				p1kleen.addRightElement(kleenNt);
 
-				Production p2kleen = new Production();
-				grammar.addProduction(p2kleen);
-				p2kleen.setLeft(kleenNt);
-				p2kleen.addRightElement(Grammar.EPS);
+				
 			}
 			break;
 			case '[':
@@ -160,16 +165,18 @@ public class GrammarUtils {
 				NonTerminal oneOrZeroNt = grammar.getNewGrammarNonTerminal();
 				rightSideElements.add(oneOrZeroNt);
 
-				Production pNested = new Production();
-				grammar.addProduction(pNested);
-				pNested.setLeft(oneOrZeroNt);
-				pNested.setRight(getRightSide(grammar, oneOrZeroNt, nestedRighSide));
-
-
 				Production p2oneOrZero = new Production();
-				grammar.addProduction(p2oneOrZero);
 				p2oneOrZero.setLeft(oneOrZeroNt);
 				p2oneOrZero.addRightElement(Grammar.EPS);
+				
+				Production p1oneOrZero = new Production();
+				grammar.addProduction(p1oneOrZero);
+				grammar.addProduction(p2oneOrZero);
+				p1oneOrZero.setLeft(oneOrZeroNt);
+				p1oneOrZero.setRight(getRightSide(grammar, oneOrZeroNt, nestedRighSide));
+
+
+				
 			}
 			break;
 			case '\\':
