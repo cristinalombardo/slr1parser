@@ -1,25 +1,23 @@
 package cristina.compint.slr1parser.cfsm;
 
 import java.io.Serializable;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.List;
 
 public class State implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	private int state;
-	private SortedSet<Candidate> closure;
+	private List<Candidate> candidates;
 
-	public State(int state) {
+	public State() {
 		super();
-		this.state = state;
-		this.closure = new TreeSet<Candidate>();
+		this.candidates = new ArrayList<Candidate>();
 	}
 
-	public State(int state, SortedSet<Candidate> closure) {
-		this(state);
-		this.closure = closure;
+	public State(List<Candidate> candidates) {
+		this.candidates = candidates;
 	}
 
 	public int getState() {
@@ -30,20 +28,41 @@ public class State implements Serializable {
 		this.state = state;
 	}
 
-	public SortedSet<Candidate> getClosure() {
-		return closure;
+	public List<Candidate> getCandidates() {
+		return candidates;
 	}
 
-	public void setClosure(SortedSet<Candidate> closure) {
-		this.closure = closure;
+	public void setCandidates(List<Candidate> candidates) {
+		this.candidates = candidates;
+	}
+	
+	public void addAll(List<Candidate> closure) {
+		for(Candidate c:closure) {
+			if(!candidates.contains(c))
+				candidates.add(c);
+		}
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("S");
+		sb.append(state);
+		sb.append(": {\n");
+		for(Candidate c: candidates) {
+			sb.append("\t");
+			sb.append(c.toString());
+			sb.append("\n");
+		}
+		sb.append("}\n");
+		return sb.toString();
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((closure == null) ? 0 : closure.hashCode());
-		result = prime * result + state;
+		result = prime * result + ((candidates == null) ? 0 : candidates.hashCode());
 		return result;
 	}
 
@@ -56,12 +75,10 @@ public class State implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		State other = (State) obj;
-		if (closure == null) {
-			if (other.closure != null)
+		if (candidates == null) {
+			if (other.candidates != null)
 				return false;
-		} else if (!closure.equals(other.closure))
-			return false;
-		if (state != other.state)
+		} else if (!candidates.equals(other.candidates))
 			return false;
 		return true;
 	}

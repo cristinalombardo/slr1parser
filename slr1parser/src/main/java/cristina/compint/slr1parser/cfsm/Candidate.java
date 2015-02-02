@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import cristina.compint.slr1parser.exception.CfsmException;
 import cristina.compint.slr1parser.grammar.Element;
+import cristina.compint.slr1parser.grammar.Grammar;
 import cristina.compint.slr1parser.grammar.Production;
 
 public class Candidate implements Serializable {
@@ -14,8 +15,8 @@ public class Candidate implements Serializable {
 	
 	public Candidate(Production production, int index) throws CfsmException {
 		super();
-		if( index >= production.getRight().size() || index < 0)
-			throw new CfsmException("Worng candidate index " + index);
+		if( index > production.getRight().size() || index < 0)
+			throw new CfsmException("Wrong candidate index " + index + " for production " + production);
 		this.production = production;
 		this.index = index;
 		
@@ -34,6 +35,11 @@ public class Candidate implements Serializable {
 	}
 	
 	public Element getCandidateElement() {
+		if(index == this.production.getRight().size())
+			return null;  //Reduction candidate
+		Element e = this.production.getRight().get(index);
+		if(e.equals(Grammar.EPS))
+			return null; //Reduction candidate 
 		return this.production.getRight().get(index);
 	}
 	
@@ -44,10 +50,12 @@ public class Candidate implements Serializable {
 		for(int i=0; i< this.production.getRight().size(); i++) {
 			Element e = this.production.getRight().get(i);
 			if( i == index)
-				sb.append("o ");
+				sb.append("° ");
 			sb.append(e.toString());
 			sb.append(" ");
 		}
+		if(index == this.production.getRight().size())
+			sb.append("°");
 		return sb.toString();
 	}
 

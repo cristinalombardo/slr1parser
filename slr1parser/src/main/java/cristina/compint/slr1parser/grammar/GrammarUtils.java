@@ -215,11 +215,9 @@ public class GrammarUtils {
 	}
 
 	public static void calculateFirstAndFollow(Grammar grammar) {
-
 		for(NonTerminal nt: grammar.getNonTerminals()) {
 			nt.setFirst(first(grammar, nt));
 		}
-
 		for(NonTerminal nt: grammar.getNonTerminals()) {
 			nt.setFollow(follow(grammar, nt, new ArrayList<NonTerminal>()));
 		}
@@ -265,12 +263,14 @@ public class GrammarUtils {
 		Set<Terminal> followSet = new HashSet<Terminal>();
 		if(trace.contains(nt)) {
 			for(NonTerminal ntrace: trace) {
-				if(ntrace.getFollow() != null)
+				if(ntrace.getFollow() != null) {
 					followSet.addAll(ntrace.getFollow());
+				}
 			}
 			return followSet;
 		}
 		trace.add(nt);
+		
 		List<Production> productions = new ArrayList<Production>(grammar.getProductions());
 		productions.add(grammar.getAxiomProduction());
 
@@ -281,8 +281,9 @@ public class GrammarUtils {
 					NonTerminal nt1 = p.getLeft();
 					if(nt1.equals(nt))
 						continue;
-					if( nt1.getFollow() == null)
+					if( nt1.getFollow() == null) {
 						nt1.setFollow(follow(grammar, nt1, trace));
+					}
 
 					followSet.addAll(nt1.getFollow());
 
@@ -296,10 +297,15 @@ public class GrammarUtils {
 							NonTerminal nt1 = (NonTerminal) e;
 							followSet.addAll(nt1.getFirst());
 							if ( nt1.getFirst().contains(Grammar.EPS) ) {
+								
 								if( i == (p.getRight().size() - 1) ) {
-									if( nt1.getFollow() == null)
-										nt1.setFollow(follow(grammar, nt1, trace));
-									followSet.addAll(nt1.getFollow());
+									NonTerminal nt2 = p.getLeft();
+									if(nt2.equals(nt))
+										continue;
+									if( nt2.getFollow() == null) {
+										nt2.setFollow(follow(grammar, nt1, trace));
+									}
+									followSet.addAll(nt2.getFollow());
 								}
 							} else {
 								break;

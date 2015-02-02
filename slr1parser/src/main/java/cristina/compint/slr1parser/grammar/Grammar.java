@@ -12,7 +12,7 @@ public class Grammar implements Serializable {
 	public static final String INTERNAL_NON_TERMINAL = "N";
 	public static final Terminal EPS = new Terminal(">EPS<");
 	public static final Terminal END_LINE = new Terminal(">$<");
-	public static final NonTerminal AXIOM = new NonTerminal("AX"); 
+	public static final NonTerminal AXIOM = new NonTerminal("<AX>"); 
 	
 	private Set<NonTerminal> nonTerminals;
 	private Set<Terminal> terminals;

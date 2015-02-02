@@ -10,6 +10,9 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import cristina.compint.slr1parser.cfsm.Cfsm;
+import cristina.compint.slr1parser.cfsm.CfsmUtils;
+import cristina.compint.slr1parser.exception.CfsmException;
 import cristina.compint.slr1parser.exception.ParserSintaxException;
 import cristina.compint.slr1parser.grammar.Grammar;
 import cristina.compint.slr1parser.grammar.GrammarUtils;
@@ -81,6 +84,10 @@ public class Main {
 					System.out.println(nt.toString() + "\t:\t" + nt.getFollow().toString()); 
 			}
 			
+			Cfsm cfsm = CfsmUtils.createCfsm(g);
+			System.out.println("Cfsm");
+			
+			System.out.println(cfsm);
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -89,7 +96,13 @@ public class Main {
 			System.out.println("Error line: " + e.getLine());
 			System.out.println("Error message: " + e.getMessage());
 			e.printStackTrace();
-		} 
+		} catch (CfsmException e) {
+			System.out.println("Error during CFSM creation");
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
+		
+		
 
 	}
 
