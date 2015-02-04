@@ -12,7 +12,7 @@ public class ActionGotoUtils {
 
 	public static ActionGotoTable createTable(Cfsm cfsm, Grammar g) {
 		
-		ActionGotoTable table = new ActionGotoTable();
+		ActionGotoTable table = new ActionGotoTable(cfsm.getStates());
 		for(Transition tr: cfsm.getTransitions()) {
 			if(tr.getE() instanceof NonTerminal) {
 				Goto gt = new Goto(tr.getS2());
@@ -36,10 +36,8 @@ public class ActionGotoUtils {
 					}
 				} 
 			}
-			if(Grammar.END_LINE.equals(s.getCandidates().get(0).getCandidateElement())) {
-				table.setAcceptState(s);
-			}
 		}
+		table.setAcceptState(cfsm.getStates().get(cfsm.getStates().size() -1));
 		return table;
 	}
 }

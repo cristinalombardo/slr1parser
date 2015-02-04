@@ -139,20 +139,20 @@ public class GrammarUtils {
 				rightSideElements.add(kleenNt);
 
 				Production p2kleen = new Production();
-				
+
 				p2kleen.setLeft(kleenNt);
 				p2kleen.addRightElement(Grammar.EPS);
-				
+
 				Production p1kleen = new Production();
-				
+
 				grammar.addProduction(p1kleen);
 				grammar.addProduction(p2kleen);
-				
+
 				p1kleen.setLeft(kleenNt);
 				p1kleen.setRight(getRightSide(grammar, kleenNt, nestedRighSide));
 				p1kleen.addRightElement(kleenNt);
 
-				
+
 			}
 			break;
 			case '[':
@@ -168,7 +168,7 @@ public class GrammarUtils {
 				Production p2oneOrZero = new Production();
 				p2oneOrZero.setLeft(oneOrZeroNt);
 				p2oneOrZero.addRightElement(Grammar.EPS);
-				
+
 				Production p1oneOrZero = new Production();
 				grammar.addProduction(p1oneOrZero);
 				grammar.addProduction(p2oneOrZero);
@@ -176,7 +176,7 @@ public class GrammarUtils {
 				p1oneOrZero.setRight(getRightSide(grammar, oneOrZeroNt, nestedRighSide));
 
 
-				
+
 			}
 			break;
 			case '\\':
@@ -258,7 +258,7 @@ public class GrammarUtils {
 	public static Set<Terminal> follow(Grammar grammar, NonTerminal nt, List<NonTerminal> trace) {
 		if ( nt.getFollow() != null)
 			return nt.getFollow();
-		
+
 
 		Set<Terminal> followSet = new HashSet<Terminal>();
 		if(trace.contains(nt)) {
@@ -270,47 +270,50 @@ public class GrammarUtils {
 			return followSet;
 		}
 		trace.add(nt);
-		
+
 		List<Production> productions = new ArrayList<Production>(grammar.getProductions());
 		productions.add(grammar.getAxiomProduction());
 
 		for ( Production p: productions) {
-			int index = p.getRight().indexOf(nt);
-			if(index >= 0) {
-				if( index == p.getRight().size() - 1) {
-					NonTerminal nt1 = p.getLeft();
-					if(nt1.equals(nt))
-						continue;
-					if( nt1.getFollow() == null) {
-						nt1.setFollow(follow(grammar, nt1, trace));
-					}
 
-					followSet.addAll(nt1.getFollow());
+			for(int index= 0; index < p.getRight().size(); index++) {
+				//			int index = p.getRight().indexOf(nt);
+				if(p.getRight().get(index).equals(nt)) {
+					if( index == p.getRight().size() - 1) {
+						NonTerminal nt1 = p.getLeft();
+						if(nt1.equals(nt))
+							continue;
+						if( nt1.getFollow() == null) {
+							nt1.setFollow(follow(grammar, nt1, trace));
+						}
 
-				} else {
-					for(int i = (index + 1); i < p.getRight().size(); i++) {
-						Element e = p.getRight().get(i);
-						if(e instanceof Terminal) {
-							followSet.add((Terminal) e);
-							break;
-						} else {
-							NonTerminal nt1 = (NonTerminal) e;
-							followSet.addAll(nt1.getFirst());
-							if ( nt1.getFirst().contains(Grammar.EPS) ) {
-								
-								if( i == (p.getRight().size() - 1) ) {
-									NonTerminal nt2 = p.getLeft();
-									if(nt2.equals(nt))
-										continue;
-									if( nt2.getFollow() == null) {
-										nt2.setFollow(follow(grammar, nt1, trace));
-									}
-									followSet.addAll(nt2.getFollow());
-								}
-							} else {
+						followSet.addAll(nt1.getFollow());
+
+					} else {
+						for(int i = (index + 1); i < p.getRight().size(); i++) {
+							Element e = p.getRight().get(i);
+							if(e instanceof Terminal) {
+								followSet.add((Terminal) e);
 								break;
-							}
-						}	
+							} else {
+								NonTerminal nt1 = (NonTerminal) e;
+								followSet.addAll(nt1.getFirst());
+								if ( nt1.getFirst().contains(Grammar.EPS) ) {
+
+									if( i == (p.getRight().size() - 1) ) {
+										NonTerminal nt2 = p.getLeft();
+										if(nt2.equals(nt))
+											continue;
+										if( nt2.getFollow() == null) {
+											nt2.setFollow(follow(grammar, nt1, trace));
+										}
+										followSet.addAll(nt2.getFollow());
+									}
+								} else {
+									break;
+								}
+							}	
+						}
 					}
 				}
 			}

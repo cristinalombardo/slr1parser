@@ -40,6 +40,14 @@ public class CfsmUtils {
 				}
 			}
 			
+			destState = getDestState(state, Grammar.END_LINE, g);
+			if(destState!= null){
+				destState = cfsm.getInnerSate(destState);
+				Transition tr = new Transition(Grammar.END_LINE, state, destState);
+				cfsm.addTransition(tr);
+				createStateAndTransanction(cfsm, g, destState);
+			}
+			
 			for(NonTerminal nt : g.getNonTerminals()) {
 				destState = getDestState(state, nt, g);
 				if(destState != null) {
@@ -78,6 +86,7 @@ public class CfsmUtils {
 			}
 		}
 	}
+	
 	private static State getDestState(State state, Element e,
 			Grammar g) throws CfsmException {
 		State newState = null;

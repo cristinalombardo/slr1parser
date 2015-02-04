@@ -24,6 +24,7 @@ import cristina.compint.slr1parser.parser.Action;
 import cristina.compint.slr1parser.parser.ActionGotoTable;
 import cristina.compint.slr1parser.parser.ActionGotoUtils;
 import cristina.compint.slr1parser.parser.Goto;
+import cristina.compint.slr1parser.parser.Parser;
 
 public class Main {
 
@@ -99,13 +100,16 @@ public class Main {
 			
 			
 			for(Terminal t: g.getTerminals()) {
+				if(Grammar.EPS.equals(t))
+					continue;
 				System.out.print("\t|" + t + "\t");
 			}
+			System.out.print("\t|$\t");
 			for(NonTerminal nt: g.getNonTerminals()) {
 				System.out.print("\t|" + nt);
 			}
 			
-			for(State s: cfsm.getStates()) {
+			for(State s: actionGotoTable.getStates()) {
 				
 					
 				System.out.println("\n");
@@ -116,12 +120,20 @@ public class Main {
 					continue;
 				}
 				for(Terminal t: g.getTerminals()) {
+					if(Grammar.EPS.equals(t))
+						continue;
 					System.out.print("\t|");
 					Action a = actionGotoTable.getAction(s, t);
 					String aString = (a!=null)?a.toString():"";
 					
 					System.out.print(aString + ((aString.length() < 7)?"\t":""));
 				}
+				
+				System.out.print("\t|");
+				Action a = actionGotoTable.getAction(s, Grammar.END_LINE);
+				String aString = (a!=null)?a.toString():"";
+				
+				System.out.print(aString + ((aString.length() < 7)?"\t":""));
 				for(NonTerminal nt: g.getNonTerminals()) {
 					System.out.print("\t|");
 					Goto gt = actionGotoTable.getGoto(s, nt);
@@ -131,6 +143,12 @@ public class Main {
 				}
 				
 			}
+			
+			String toCheck = "1+2+6";
+			if(Parser.checkString(toCheck, actionGotoTable))
+				System.out.println("\nString \"" + toCheck +"\" Checked.");
+			else
+				System.out.println("\nString \"" + toCheck +"\" does not Checked.");
 			
 		} catch (IOException e) {
 			e.printStackTrace();

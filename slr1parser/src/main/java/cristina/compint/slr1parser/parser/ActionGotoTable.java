@@ -2,6 +2,7 @@ package cristina.compint.slr1parser.parser;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import cristina.compint.slr1parser.cfsm.State;
@@ -14,10 +15,12 @@ public class ActionGotoTable implements Serializable{
 	
 	private Map<State, ActionGotoRow> table;
 	private State acceptState;
+	private List<State> states;
 
-	public ActionGotoTable() {
+	public ActionGotoTable(List<State> states) {
 		super();
 		this.table = new HashMap<State, ActionGotoRow>();
+		this.states = states;
 	}
 
 	public Map<State, ActionGotoRow> getTable() {
@@ -34,6 +37,14 @@ public class ActionGotoTable implements Serializable{
 
 	public void setAcceptState(State acceptState) {
 		this.acceptState = acceptState;
+	}
+
+	public List<State> getStates() {
+		return states;
+	}
+
+	public void setStates(List<State> states) {
+		this.states = states;
 	}
 
 	public Action getAction(State s, Terminal t) {
