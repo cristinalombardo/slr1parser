@@ -144,7 +144,8 @@ public class Main {
 				
 			}
 			
-			String toCheck = "1+2+6";
+			String toCheck = "a+b+c";
+			System.out.println("\n Parsing string: " + toCheck);
 			if(Parser.checkString(toCheck, actionGotoTable))
 				System.out.println("\nString \"" + toCheck +"\" Checked.");
 			else

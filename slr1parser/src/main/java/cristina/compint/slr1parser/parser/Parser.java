@@ -1,6 +1,7 @@
 package cristina.compint.slr1parser.parser;
 
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.List;
 import java.util.Stack;
 
@@ -22,9 +23,15 @@ public class Parser {
 			terminalString.add(new Terminal(String.valueOf(c)));
 		}
 		terminalString.add(Grammar.END_LINE);
+		@SuppressWarnings("resource")
+		Formatter formatter = new Formatter();
+		formatter.format("%1$30s | %2$10s | %3$1s ", "STACK", "INPUT", "ACTION");
+		System.out.println(formatter.toString());
+		
 		while(index != terminalString.size()) {
 			Terminal t = terminalString.get(index);
 			Action a = table.getAction(stack.peek().getState(), t);
+			printLine(stack, terminalString, index, a);
 			if(a == null)
 				return false;
 			if(a instanceof ActionShift) {
@@ -43,7 +50,9 @@ public class Parser {
 				}
 				Goto gt = table.getGoto(stack.peek().getState(), ar.getProduction().getLeft());
 				stack.push(new StackElement(gt.getDestState(), ar.getProduction().getLeft()));
+				
 			}
+			
 		}
 		
 		if(stack.peek().getState().equals(table.getAcceptState())){
@@ -54,4 +63,31 @@ public class Parser {
 
 		return isChecked;
 	}
+
+	private static void printLine(Stack<StackElement> stack,
+			List<Terminal> terminalString, int index, Action a) {
+		boolean isFirst = true;
+		StringBuilder stackSb = new StringBuilder();
+		for(StackElement se: stack) {
+			if(!isFirst)
+				stackSb.append(", ");
+			else
+				isFirst = false;
+			stackSb.append(se.getElement());
+			stackSb.append(" ");
+			stackSb.append(se.getState().getState());
+		}
+		
+		StringBuilder inputSb = new StringBuilder();
+		for(int i = index; i < terminalString.size(); i++) {
+			inputSb.append(terminalString.get(i));
+		}
+		
+		@SuppressWarnings("resource")
+		Formatter formatter = new Formatter();
+		formatter.format("%1$30s | %2$10s | %3$1s ", stackSb.toString(), inputSb.toString(), (a!=null)?a.toString():"");
+		System.out.println(formatter.toString());
+		
+	}
+
 }
