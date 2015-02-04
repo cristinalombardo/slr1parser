@@ -37,6 +37,16 @@ public class Production implements Serializable {
 		this.right.add(e);
 	}
 	
+	public String toCompactString() {
+		StringBuilder sb = new StringBuilder(left.toString());
+		sb.append("->");
+		for(Element e: right) {
+			sb.append(e.toString());
+			sb.append(" ");
+		}
+		return sb.toString();
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(left.toString());

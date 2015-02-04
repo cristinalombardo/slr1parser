@@ -12,12 +12,18 @@ import java.util.stream.Collectors;
 
 import cristina.compint.slr1parser.cfsm.Cfsm;
 import cristina.compint.slr1parser.cfsm.CfsmUtils;
+import cristina.compint.slr1parser.cfsm.State;
 import cristina.compint.slr1parser.exception.CfsmException;
 import cristina.compint.slr1parser.exception.ParserSintaxException;
 import cristina.compint.slr1parser.grammar.Grammar;
 import cristina.compint.slr1parser.grammar.GrammarUtils;
 import cristina.compint.slr1parser.grammar.NonTerminal;
 import cristina.compint.slr1parser.grammar.Production;
+import cristina.compint.slr1parser.grammar.Terminal;
+import cristina.compint.slr1parser.parser.Action;
+import cristina.compint.slr1parser.parser.ActionGotoTable;
+import cristina.compint.slr1parser.parser.ActionGotoUtils;
+import cristina.compint.slr1parser.parser.Goto;
 
 public class Main {
 
@@ -88,6 +94,43 @@ public class Main {
 			System.out.println("Cfsm");
 			
 			System.out.println(cfsm);
+			
+			ActionGotoTable actionGotoTable = ActionGotoUtils.createTable(cfsm, g);
+			
+			
+			for(Terminal t: g.getTerminals()) {
+				System.out.print("\t|" + t + "\t");
+			}
+			for(NonTerminal nt: g.getNonTerminals()) {
+				System.out.print("\t|" + nt);
+			}
+			
+			for(State s: cfsm.getStates()) {
+				
+					
+				System.out.println("\n");
+				System.out.print("S" + s.getState());
+				
+				if(s.equals(actionGotoTable.getAcceptState())) {
+					System.out.println("\t| Accept");
+					continue;
+				}
+				for(Terminal t: g.getTerminals()) {
+					System.out.print("\t|");
+					Action a = actionGotoTable.getAction(s, t);
+					String aString = (a!=null)?a.toString():"";
+					
+					System.out.print(aString + ((aString.length() < 7)?"\t":""));
+				}
+				for(NonTerminal nt: g.getNonTerminals()) {
+					System.out.print("\t|");
+					Goto gt = actionGotoTable.getGoto(s, nt);
+					if(gt!=null) {
+						System.out.print(gt);
+					}
+				}
+				
+			}
 			
 		} catch (IOException e) {
 			e.printStackTrace();

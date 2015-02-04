@@ -27,7 +27,6 @@ public class CfsmUtils {
 	}
 	
 	private static void createStateAndTransanction(Cfsm cfsm, Grammar g, State state) throws CfsmException {
-		
 		checkShiftReduce(state, g);
 		if(cfsm.addState(state)) {
 			State destState = null;
@@ -40,6 +39,7 @@ public class CfsmUtils {
 					createStateAndTransanction(cfsm, g, destState);
 				}
 			}
+			
 			for(NonTerminal nt : g.getNonTerminals()) {
 				destState = getDestState(state, nt, g);
 				if(destState != null) {
@@ -58,8 +58,10 @@ public class CfsmUtils {
 		List<Terminal> reduceTerminals = new ArrayList<Terminal>();
 		for(Candidate c: state.getCandidates()) {
 			if(c.getCandidateElement() == null) { //Reduction
-				NonTerminal nt = g.findNonTerminl(c.getProduction().getLeft().getLabel());
-				reduceTerminals.addAll(nt.getFollow());
+				if(!c.getProduction().getLeft().equals(Grammar.AXIOM)) {
+					NonTerminal nt = g.findNonTerminl(c.getProduction().getLeft().getLabel());
+					reduceTerminals.addAll(nt.getFollow());
+				}
 			} else if(c.getCandidateElement() instanceof Terminal) { //Terminal shift
 				shiftTerminals.add((Terminal) c.getCandidateElement());
 			} else { //Non Terminal Shift
