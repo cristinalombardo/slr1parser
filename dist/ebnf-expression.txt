@@ -4,12 +4,17 @@
 # 	\ :Escape char
 # 	<E>, <F>, <T>, <X>: Non Terminal 
 # 	i, +, -, ^: Terminals
-# 	\\: Escaped \ used as terminal
+# 	\\: Escaped / used as terminal
 # 	\(: Special Char ( escaped used as terminal
 # 	() [] {} |: Special chars
+
 ##########
+
 # Grammar
 
 1: <E> ::= <T> {(+|-) <T>}
-2: <T> ::= a|b
+2: <T> ::= <F> {(*|/) <F>}
+3: <F> ::= <X> [ ^ <F>]
+4: <X> ::= \(<E>\)|{0|1|2|3|4|5|6|7|8|9}
 
+#Example of 1*2+4-(23*5)^(4*2)

@@ -12,6 +12,13 @@ import cristina.compint.slr1parser.grammar.Terminal;
 public class Parser {
 
 
+	/**
+	 * Parsing string s according ActionGoto table.
+	 *
+	 * @param s the string to parse
+	 * @param table the ActionGoto Table
+	 * @return true if the string s in a valid string
+	 */
 	public static boolean checkString(String s, ActionGotoTable table) {
 		boolean isChecked = false;
 		Stack<StackElement> stack = new Stack<StackElement>();
@@ -23,10 +30,10 @@ public class Parser {
 			terminalString.add(new Terminal(String.valueOf(c)));
 		}
 		terminalString.add(Grammar.END_LINE);
-		@SuppressWarnings("resource")
 		Formatter formatter = new Formatter();
-		formatter.format("%1$30s | %2$10s | %3$1s ", "STACK", "INPUT", "ACTION");
+		formatter.format("%1$50s | %2$10s | %3$1s ", "STACK", "INPUT", "ACTION");
 		System.out.println(formatter.toString());
+		formatter.close();
 		
 		while(index != terminalString.size()) {
 			Terminal t = terminalString.get(index);
@@ -83,10 +90,10 @@ public class Parser {
 			inputSb.append(terminalString.get(i));
 		}
 		
-		@SuppressWarnings("resource")
 		Formatter formatter = new Formatter();
-		formatter.format("%1$30s | %2$10s | %3$1s ", stackSb.toString(), inputSb.toString(), (a!=null)?a.toString():"");
+		formatter.format("%1$50s | %2$10s | %3$1s ", stackSb.toString(), inputSb.toString(), (a!=null)?a.toString():"");
 		System.out.println(formatter.toString());
+		formatter.close();
 		
 	}
 

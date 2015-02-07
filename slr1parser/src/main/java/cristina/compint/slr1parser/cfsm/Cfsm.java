@@ -59,15 +59,16 @@ public class Cfsm implements Serializable{
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		for(Transition t: transitions) {
-			sb.append("\n====================================\n");
+			sb.append("====================================\n");
 			sb.append(t.getS1());
 			sb.append("------------------------------------\n");
 			sb.append("\t >>> " + t.getE() + " >>>");
 			sb.append("\n------------------------------------\n");
 			sb.append(t.getS2());
-			sb.append("====================================\n");
+			
 			
 		}
+		sb.append("====================================\n");
 		return sb.toString();
 	}
 

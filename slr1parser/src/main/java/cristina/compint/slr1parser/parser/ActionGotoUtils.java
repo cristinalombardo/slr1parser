@@ -34,10 +34,13 @@ public class ActionGotoUtils {
 							table.addAction(s, t, a);
 						}
 					}
-				} 
+					if(c.getIndex() > 0 &&
+							Grammar.END_LINE.equals(c.getProduction().getRight().get(c.getIndex() - 1))) {
+						table.setAcceptState(s);
+					}
+				}
 			}
 		}
-		table.setAcceptState(cfsm.getStates().get(cfsm.getStates().size() -1));
 		return table;
 	}
 }

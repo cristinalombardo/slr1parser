@@ -9,6 +9,7 @@ import cristina.compint.slr1parser.exception.ParserSintaxException;
 
 public class GrammarUtils {
 
+	
 	public static Grammar convertToGrammar(List<String> grammarLines) throws ParserSintaxException {
 		Grammar grammar = new Grammar();
 		//Extract production

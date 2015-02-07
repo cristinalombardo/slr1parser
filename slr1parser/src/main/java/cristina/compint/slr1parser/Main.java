@@ -4,10 +4,14 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 import cristina.compint.slr1parser.cfsm.Cfsm;
@@ -40,25 +44,30 @@ public class Main {
 			grammarPath = Paths.get(args[0]);
 		} else {
 			URL url = Main.class.getResource("/ebnfexample.txt");
+			/*
+			 * Comments if you run the project into eclipse
+			 */
+			Map<String, String> env = new HashMap<>(); 
+			env.put("create", "true");
 			try {
-				/*
-				 * Comments if you run the project into eclipse
-				Map<String, String> env = new HashMap<>(); 
-				env.put("create", "true");
-				FileSystems.newFileSystem(url.toURI(), env); 
-				*/
-				grammarPath = Paths.get(url.toURI());
-				System.out.println("Example file");
-				System.out.println("============================");
-				Files.lines(grammarPath).forEach(System.out::println);
-				System.out.println("============================");
+				FileSystems.newFileSystem(url.toURI(), env);
 			} catch (IOException e) {
 				e.printStackTrace();
-				return;
-			}
+			} 
+			/**/
+			grammarPath = Paths.get(url.toURI());
 		}
 
+		Scanner scan = new Scanner(System.in);
 		try {
+			System.out.println("Input file");
+			System.out.println("============================");
+			Files.lines(grammarPath).forEach(System.out::println);
+			System.out.println("============================");
+
+			System.out.println("\nPress enter to contiune...");
+			scan.nextLine();
+
 			//Step 2: filter comments and blank lines from input file
 			List<String> grammarLines = 
 					Files.lines(grammarPath)
@@ -67,35 +76,43 @@ public class Main {
 
 			//Step 3: Extract grammar from EBNF format
 			Grammar g =	GrammarUtils.convertToGrammar(grammarLines);
-			
-			
+
+
 			System.out.println("\nNon terminals list: " + g.getNonTerminals());
 			System.out.println("Terminals list: " + g.getTerminals());
-			
-			
+
+
 			System.out.println("\nGrammar Productions: \n" + g.getAxiomProduction());
-			
+
 			for(Production p: g.getProductions()) {
-				
 				System.out.println(p);
 			}
-			
+
+			System.out.println("\nGrammar done. Press enter to contiune...");
+			scan.nextLine();
+
 			System.out.println("\nFirst set of non teminals:");
 			for(NonTerminal nt: g.getNonTerminals()) {
 				System.out.println(nt.toString() + "\t:\t" + nt.getFirst().toString()); 
 			}
-			
+
 			System.out.println("\nFollow set of non teminals:");
 			for(NonTerminal nt: g.getNonTerminals()) {
 				if(nt.getFollow() != null)
 					System.out.println(nt.toString() + "\t:\t" + nt.getFollow().toString()); 
 			}
-			
+
+			System.out.println("\nFollow and First set done. Press enter to contiune...");
+			scan.nextLine();
+
 			Cfsm cfsm = CfsmUtils.createCfsm(g);
 			System.out.println("Cfsm");
-			
+
 			System.out.println(cfsm);
-			
+
+			System.out.println("\nCarateristich finite state machine done. Press enter to contiune...");
+			scan.nextLine();
+
 			ActionGotoTable actionGotoTable = ActionGotoUtils.createTable(cfsm, g);
 			
 			
@@ -108,15 +125,12 @@ public class Main {
 			for(NonTerminal nt: g.getNonTerminals()) {
 				System.out.print("\t|" + nt);
 			}
-			
+
 			for(State s: actionGotoTable.getStates()) {
-				
-					
 				System.out.println("\n");
 				System.out.print("S" + s.getState());
-				
 				if(s.equals(actionGotoTable.getAcceptState())) {
-					System.out.println("\t| Accept");
+					System.out.print("\t| Accept");
 					continue;
 				}
 				for(Terminal t: g.getTerminals()) {
@@ -125,14 +139,14 @@ public class Main {
 					System.out.print("\t|");
 					Action a = actionGotoTable.getAction(s, t);
 					String aString = (a!=null)?a.toString():"";
-					
+
 					System.out.print(aString + ((aString.length() < 7)?"\t":""));
 				}
-				
+
 				System.out.print("\t|");
 				Action a = actionGotoTable.getAction(s, Grammar.END_LINE);
 				String aString = (a!=null)?a.toString():"";
-				
+
 				System.out.print(aString + ((aString.length() < 7)?"\t":""));
 				for(NonTerminal nt: g.getNonTerminals()) {
 					System.out.print("\t|");
@@ -141,30 +155,37 @@ public class Main {
 						System.out.print(gt);
 					}
 				}
-				
+
 			}
+
+			System.out.println("\nActionGoto table done.");
 			
-			String toCheck = "a+b+c";
-			System.out.println("\n Parsing string: " + toCheck);
-			if(Parser.checkString(toCheck, actionGotoTable))
-				System.out.println("\nString \"" + toCheck +"\" Checked.");
-			else
-				System.out.println("\nString \"" + toCheck +"\" does not Checked.");
-			
+			while(true) {
+				System.out.print("Write exite to exit.\nInsert a string to parse and press enter: ");
+				String toCheck = scan.nextLine();
+				if(toCheck.equals("exit"))
+					break;
+				System.out.println("\n Parsing string: " + toCheck);
+				if(Parser.checkString(toCheck, actionGotoTable))
+					System.out.println("\nString \"" + toCheck +"\" Checked.");
+				else
+					System.out.println("\nString \"" + toCheck +"\" does not Checked.");
+			}
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ParserSintaxException e) {
 			System.out.println("Parser error: check the input file.");
 			System.out.println("Error line: " + e.getLine());
 			System.out.println("Error message: " + e.getMessage());
-			e.printStackTrace();
 		} catch (CfsmException e) {
 			System.out.println("Error during CFSM creation");
 			System.out.println(e.getMessage());
-			e.printStackTrace();
+		}finally {
+			scan.close();	
 		}
-		
-		
+
+
 
 	}
 
