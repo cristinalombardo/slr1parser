@@ -10,7 +10,7 @@ import cristina.compint.slr1parser.grammar.Terminal;
 
 public class ActionGotoUtils {
 
-	public static ActionGotoTable createTable(Cfsm cfsm, Grammar g) {
+	public static ActionGotoTable createTable(Cfsm cfsm) {
 		
 		ActionGotoTable table = new ActionGotoTable(cfsm.getStates());
 		for(Transition tr: cfsm.getTransitions()) {
@@ -28,7 +28,7 @@ public class ActionGotoUtils {
 			for(Candidate c: s.getCandidates()) {
 				if(c.getCandidateElement() == null) { //Reduction
 					if(!c.getProduction().getLeft().equals(Grammar.AXIOM)) {
-						NonTerminal nt = g.findNonTerminl(c.getProduction().getLeft().getLabel());
+						NonTerminal nt = c.getProduction().getLeft(); //g.findNonTerminl(c.getProduction().getLeft().getLabel());
 						for(Terminal t: nt.getFollow()) {
 							Action a = new ActionReduce(c.getProduction());
 							table.addAction(s, t, a);

@@ -18,7 +18,7 @@ import cristina.compint.slr1parser.cfsm.Cfsm;
 import cristina.compint.slr1parser.cfsm.CfsmUtils;
 import cristina.compint.slr1parser.cfsm.State;
 import cristina.compint.slr1parser.exception.CfsmException;
-import cristina.compint.slr1parser.exception.ParserSintaxException;
+import cristina.compint.slr1parser.exception.GrammarSyntaxException;
 import cristina.compint.slr1parser.grammar.Grammar;
 import cristina.compint.slr1parser.grammar.GrammarUtils;
 import cristina.compint.slr1parser.grammar.NonTerminal;
@@ -46,7 +46,7 @@ public class Main {
 			URL url = Main.class.getResource("/ebnfexample.txt");
 			/*
 			 * Comments if you run the project into eclipse
-			 */
+			 *
 			Map<String, String> env = new HashMap<>(); 
 			env.put("create", "true");
 			try {
@@ -54,7 +54,7 @@ public class Main {
 			} catch (IOException e) {
 				e.printStackTrace();
 			} 
-			/**/
+			**/
 			grammarPath = Paths.get(url.toURI());
 		}
 
@@ -74,7 +74,7 @@ public class Main {
 					.filter(x -> !x.startsWith("#") && !x.isEmpty())
 					.collect(Collectors.toList());
 
-			//Step 3: Extract grammar from EBNF format
+			//Step 3: Extract grammar from EBNF
 			Grammar g =	GrammarUtils.convertToGrammar(grammarLines);
 
 
@@ -113,7 +113,7 @@ public class Main {
 			System.out.println("\nCarateristich finite state machine done. Press enter to contiune...");
 			scan.nextLine();
 
-			ActionGotoTable actionGotoTable = ActionGotoUtils.createTable(cfsm, g);
+			ActionGotoTable actionGotoTable = ActionGotoUtils.createTable(cfsm);
 			
 			
 			for(Terminal t: g.getTerminals()) {
@@ -161,7 +161,7 @@ public class Main {
 			System.out.println("\nActionGoto table done.");
 			
 			while(true) {
-				System.out.print("Write exite to exit.\nInsert a string to parse and press enter: ");
+				System.out.print("Write \"exit\" to exit.\nInsert a string to parse and press enter: ");
 				String toCheck = scan.nextLine();
 				if(toCheck.equals("exit"))
 					break;
@@ -174,7 +174,7 @@ public class Main {
 
 		} catch (IOException e) {
 			e.printStackTrace();
-		} catch (ParserSintaxException e) {
+		} catch (GrammarSyntaxException e) {
 			System.out.println("Parser error: check the input file.");
 			System.out.println("Error line: " + e.getLine());
 			System.out.println("Error message: " + e.getMessage());

@@ -5,13 +5,25 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import cristina.compint.slr1parser.exception.ParserSintaxException;
+import cristina.compint.slr1parser.exception.GrammarSyntaxException;
 
+/**
+ * The Class GrammarUtils.
+ */
 public class GrammarUtils {
 
 	
-	public static Grammar convertToGrammar(List<String> grammarLines) throws ParserSintaxException {
+	/**
+	 * Convert a list of string into a grammar.
+	 * Strings into the list must be formatted like 1: <E> ::= <C>
+	 *
+	 * @param grammarLines the grammar lines
+	 * @return the grammar extracted from the lines
+	 * @throws GrammarSyntaxException the parser syntax exception when find some errors into the input file
+	 */
+	public static Grammar convertToGrammar(List<String> grammarLines) throws GrammarSyntaxException {
 		Grammar grammar = new Grammar();
+		
 		//Extract production
 		for (String line: grammarLines){
 			extractProduction(grammar, line);
@@ -31,19 +43,26 @@ public class GrammarUtils {
 		return grammar;
 	}
 
-	private static void extractProduction(Grammar grammar, String line) throws ParserSintaxException{
+	/**
+	 * Extract production. Get and create production from the line passed.
+	 *
+	 * @param grammar the grammar in witch add the productions
+	 * @param line the line to read
+	 * @throws GrammarSyntaxException the parser syntax exception
+	 */
+	private static void extractProduction(Grammar grammar, String line) throws GrammarSyntaxException{
 
 		int lineSeparatorIndex = line.indexOf(":");
 
 		if (lineSeparatorIndex < 1) {
-			throw new ParserSintaxException("The line do not start with line number.", line);
+			throw new GrammarSyntaxException("The line do not start with line number.", line);
 		}
 
 		String lineNumber = line.substring(0, lineSeparatorIndex);
 		try {
 			Integer.parseInt(lineNumber);
 		} catch(NumberFormatException e) {
-			throw new ParserSintaxException("The line do not start with line number.", line);
+			throw new GrammarSyntaxException("The line do not start with line number.", line);
 		}
 
 		String lineToParse = line.substring(lineSeparatorIndex + 1);
@@ -51,16 +70,19 @@ public class GrammarUtils {
 		String[] productionString = lineToParse.split(Production.ASSIGNMENT_STRING);
 
 		if(productionString.length != 2)
-			throw new ParserSintaxException("A production must be in format like <T> ::= <T>|a", line);
+			throw new GrammarSyntaxException("A production must be in format like <T> ::= <T>|a", line);
 
 		String leftSide = productionString[0].replaceAll(" ", "");
 
 
 		String ntLabel = leftSide.substring(1, leftSide.length() - 1);
 		if(!NonTerminal.NON_TERMINAL_PATTERN.matcher(ntLabel).matches())
-			throw new ParserSintaxException("Unespected non teminal " + ntLabel, line);
-		NonTerminal leftNt = new NonTerminal(ntLabel);
-		grammar.addNonTerminal(leftNt);
+			throw new GrammarSyntaxException("Unespected non teminal " + ntLabel, line);
+		NonTerminal leftNt = grammar.findNonTerminl(ntLabel);
+		if(leftNt == null){
+				leftNt = new NonTerminal(ntLabel);
+				grammar.addNonTerminal(leftNt);
+		}
 
 		Production p = new Production();
 		grammar.addProduction(p);
@@ -70,7 +92,16 @@ public class GrammarUtils {
 
 	}
 
-	private static List<Element> getRightSide(Grammar grammar, NonTerminal leftNt, String rightSide) throws ParserSintaxException {
+	/**
+	 * Gets the right side.
+	 *
+	 * @param grammar the grammar
+	 * @param leftNt the left nt
+	 * @param rightSide the right side
+	 * @return the right side
+	 * @throws GrammarSyntaxException the parser sintax exception
+	 */
+	private static List<Element> getRightSide(Grammar grammar, NonTerminal leftNt, String rightSide) throws GrammarSyntaxException {
 		List<Element> rightSideElements = new ArrayList<Element>();
 
 		for(int i = 0; i < rightSide.length(); i++) {
@@ -85,11 +116,11 @@ public class GrammarUtils {
 				}
 
 				if(i >= rightSide.length()) 
-					throw new ParserSintaxException("Unclosed non teminal", rightSide);
+					throw new GrammarSyntaxException("Unclosed non teminal", rightSide);
 
 				String ntLabel = rightSide.substring(start, i);
 				if(!NonTerminal.NON_TERMINAL_PATTERN.matcher(ntLabel).matches())
-					throw new ParserSintaxException("Unespected non teminal " + ntLabel, rightSide);
+					throw new GrammarSyntaxException("Unespected non teminal " + ntLabel, rightSide);
 
 				NonTerminal nt = grammar.findNonTerminl(ntLabel);
 				if(nt == null) {
@@ -104,7 +135,7 @@ public class GrammarUtils {
 			case ')':
 			case '}':
 			case ']':
-				throw new ParserSintaxException("Unespected unescaped symbol " + rightSide.charAt(i), rightSide);
+				throw new GrammarSyntaxException("Unespected unescaped symbol " + rightSide.charAt(i), rightSide);
 			case '|':
 			{
 				Production pOr = new Production();
@@ -183,7 +214,7 @@ public class GrammarUtils {
 			case '\\':
 				i++;
 				if(i == rightSide.length()) 
-					throw new ParserSintaxException("Unespected symbol \\", rightSide);
+					throw new GrammarSyntaxException("Unespected symbol \\", rightSide);
 			default:
 				Terminal terminal = new Terminal(rightSide.substring(i, i+1));
 				grammar.addTerminal(terminal);
@@ -195,7 +226,16 @@ public class GrammarUtils {
 		return rightSideElements;
 	}
 
-	public static int getParenthesisSubstringIndex(String source, char open, char close) throws ParserSintaxException {
+	/**
+	 * Gets the parenthesis substring index.
+	 *
+	 * @param source the source
+	 * @param open the open
+	 * @param close the close
+	 * @return the parenthesis substring index
+	 * @throws GrammarSyntaxException the parser sintax exception
+	 */
+	public static int getParenthesisSubstringIndex(String source, char open, char close) throws GrammarSyntaxException {
 		int parenthesisCount = 1;
 		int end = -1;
 		for(int i = 0; i < source.length(); i++) {
@@ -210,11 +250,16 @@ public class GrammarUtils {
 			}
 		}
 		if(end == -1)
-			throw new ParserSintaxException("Could not find end parenthesy of " + open, source);
+			throw new GrammarSyntaxException("Could not find end parenthesy of " + open, source);
 
 		return end;
 	}
 
+	/**
+	 * Calculate first and follow.
+	 *
+	 * @param grammar the grammar
+	 */
 	public static void calculateFirstAndFollow(Grammar grammar) {
 		for(NonTerminal nt: grammar.getNonTerminals()) {
 			nt.setFirst(first(grammar, nt));
@@ -224,6 +269,13 @@ public class GrammarUtils {
 		}
 	}
 
+	/**
+	 * First.
+	 *
+	 * @param grammar the grammar
+	 * @param nt the nt
+	 * @return the sets the
+	 */
 	public static Set<Terminal> first(Grammar grammar, NonTerminal nt) {
 		if ( nt.getFirst() != null )
 			return nt.getFirst();
@@ -232,7 +284,8 @@ public class GrammarUtils {
 		for (int i = 0; i < grammar.getProductions().size(); i++) {
 			Production p = grammar.getProductions().get(i);
 			if(p.getLeft().equals(nt)) {
-				for(Element e: p.getRight()) {
+				for(int j = 0; j < p.getRight().size(); j++) {
+					Element e = p.getRight().get(j);
 					if(e instanceof Terminal) {
 						firstSet.add((Terminal) e);
 						break;
@@ -242,7 +295,7 @@ public class GrammarUtils {
 							nt1.setFirst(first(grammar, nt1));
 						}
 						Set<Terminal> nt1First = new HashSet<Terminal>(nt1.getFirst()); 
-						if(i < (grammar.getProductions().size() -1)) {
+						if(j < (p.getRight().size() -1)) {
 							nt1First.remove(Grammar.EPS);
 						}
 						firstSet.addAll(nt1First);
@@ -256,6 +309,14 @@ public class GrammarUtils {
 		return firstSet;
 	}
 
+	/**
+	 * Follow.
+	 *
+	 * @param grammar the grammar
+	 * @param nt the nt
+	 * @param trace the trace
+	 * @return the sets the
+	 */
 	public static Set<Terminal> follow(Grammar grammar, NonTerminal nt, List<NonTerminal> trace) {
 		if ( nt.getFollow() != null)
 			return nt.getFollow();
