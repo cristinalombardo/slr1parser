@@ -8,8 +8,18 @@ import cristina.compint.slr1parser.grammar.Grammar;
 import cristina.compint.slr1parser.grammar.NonTerminal;
 import cristina.compint.slr1parser.grammar.Terminal;
 
+/**
+ * The Class ActionGotoUtils.
+ * This class allows to extract the ActionGoto table from a Characteristic Finite State Machine.
+ */
 public class ActionGotoUtils {
 
+	/**
+	 * Creates the table from a CFSM
+	 *
+	 * @param cfsm the cfsm
+	 * @return the action goto table
+	 */
 	public static ActionGotoTable createTable(Cfsm cfsm) {
 		
 		ActionGotoTable table = new ActionGotoTable(cfsm.getStates());

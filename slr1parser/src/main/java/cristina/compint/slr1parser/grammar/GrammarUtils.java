@@ -9,6 +9,9 @@ import cristina.compint.slr1parser.exception.GrammarSyntaxException;
 
 /**
  * The Class GrammarUtils.
+ * This class has all the methods to transform a set of string that contains an EBNF grammar definition into an object Grammar.
+ * Through this class you also calculate first and follow set of each non-terminal into the grammar.
+ * 
  */
 public class GrammarUtils {
 
@@ -44,7 +47,7 @@ public class GrammarUtils {
 	}
 
 	/**
-	 * Extract production. Get and create production from the line passed.
+	 * Get and create production from the line passed.
 	 *
 	 * @param grammar the grammar in witch add the productions
 	 * @param line the line to read
@@ -93,13 +96,14 @@ public class GrammarUtils {
 	}
 
 	/**
-	 * Gets the right side.
+	 * Gets the right side of a production. 
+	 * This method can be called recursively to calculate inner parenthesis right side.
 	 *
-	 * @param grammar the grammar
-	 * @param leftNt the left nt
-	 * @param rightSide the right side
-	 * @return the right side
-	 * @throws GrammarSyntaxException the parser sintax exception
+	 * @param grammar the grammar used to add recursively the productions
+	 * @param leftNt the left side of the actual production
+	 * @param rightSide the input string that contains the right side into EBNF format
+	 * @return a list of element that represents the result of rightSide string interpretation 
+	 * @throws GrammarSyntaxException the parser syntax exception
 	 */
 	private static List<Element> getRightSide(Grammar grammar, NonTerminal leftNt, String rightSide) throws GrammarSyntaxException {
 		List<Element> rightSideElements = new ArrayList<Element>();
@@ -227,13 +231,17 @@ public class GrammarUtils {
 	}
 
 	/**
-	 * Gets the parenthesis substring index.
+	 * This method allows to get the index of closed parenthesis.
+	 * E.g.  
+	 * 		String ori= "{a+b+{c+d}}";
+	 *  	int offset =  getParenthesisSubstringIndex(ori.substring(1), '{', '}');
+	 *  	\\ offset: 9
 	 *
-	 * @param source the source
-	 * @param open the open
-	 * @param close the close
-	 * @return the parenthesis substring index
-	 * @throws GrammarSyntaxException the parser sintax exception
+	 * @param source the string to analyze
+	 * @param open the open parenthesis to exclude sub parenthesis
+	 * @param close the close parenthesis
+	 * @return the close parenthesis substring index
+	 * @throws GrammarSyntaxException the Grammar Syntax exception
 	 */
 	public static int getParenthesisSubstringIndex(String source, char open, char close) throws GrammarSyntaxException {
 		int parenthesisCount = 1;
@@ -270,11 +278,11 @@ public class GrammarUtils {
 	}
 
 	/**
-	 * First.
+	 * First. Calculate the first set recursively.
 	 *
 	 * @param grammar the grammar
-	 * @param nt the nt
-	 * @return the sets the
+	 * @param nt the non-terminal 
+	 * @return the first set
 	 */
 	public static Set<Terminal> first(Grammar grammar, NonTerminal nt) {
 		if ( nt.getFirst() != null )
@@ -310,12 +318,12 @@ public class GrammarUtils {
 	}
 
 	/**
-	 * Follow.
+	 * Follow.Calculate the follow set recursively
 	 *
 	 * @param grammar the grammar
-	 * @param nt the nt
-	 * @param trace the trace
-	 * @return the sets the
+	 * @param nt the non-terminal
+	 * @param trace to prevent the infinite loop
+	 * @return the follow set
 	 */
 	public static Set<Terminal> follow(Grammar grammar, NonTerminal nt, List<NonTerminal> trace) {
 		if ( nt.getFollow() != null)

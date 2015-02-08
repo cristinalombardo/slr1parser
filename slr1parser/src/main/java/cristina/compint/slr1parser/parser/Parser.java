@@ -9,6 +9,10 @@ import cristina.compint.slr1parser.grammar.Element;
 import cristina.compint.slr1parser.grammar.Grammar;
 import cristina.compint.slr1parser.grammar.Terminal;
 
+/**
+ * The Class Parser.
+ * This class allows string parsing to check if a string is of a SLR(1) language
+ */
 public class Parser {
 
 
@@ -71,6 +75,14 @@ public class Parser {
 		return isChecked;
 	}
 
+	/**
+	 * Prints the line. Utility method to print the process
+	 *
+	 * @param stack the stack
+	 * @param terminalString the terminal string
+	 * @param index the index
+	 * @param a the a
+	 */
 	private static void printLine(Stack<StackElement> stack,
 			List<Terminal> terminalString, int index, Action a) {
 		boolean isFirst = true;

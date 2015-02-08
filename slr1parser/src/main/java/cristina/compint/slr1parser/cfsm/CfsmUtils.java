@@ -10,8 +10,20 @@ import cristina.compint.slr1parser.grammar.NonTerminal;
 import cristina.compint.slr1parser.grammar.Production;
 import cristina.compint.slr1parser.grammar.Terminal;
 
+/**
+ * The Class CfsmUtils. 
+ * This class allows to calculate the Characteristic Finite State Machine of a grammar.
+ */
 public class CfsmUtils {
 
+	
+	/**
+	 * Creates the CFSM of a Grammar
+	 *
+	 * @param g the grammar
+	 * @return the cfsm of a grammar
+	 * @throws CfsmException the cfsm exception
+	 */
 	public static Cfsm createCfsm(Grammar g) throws CfsmException {
 		Cfsm cfsm = new Cfsm();
 
@@ -21,13 +33,21 @@ public class CfsmUtils {
 		closure(closureList, g, firstCandidate);
 		firstState.addAll(closureList);
 		
-		createStateAndTransanction(cfsm, g, firstState);
+		createStateAndTransaction(cfsm, g, firstState);
 
 		return cfsm;
 	}
 	
-	private static void createStateAndTransanction(Cfsm cfsm, Grammar g, State state) throws CfsmException {
-		checkShiftReduce(state, g);
+	/**
+	 * Creates the state and transaction recursively.
+	 *
+	 * @param cfsm the cfsm
+	 * @param g the grammar
+	 * @param state the start state
+	 * @throws CfsmException the cfsm exception
+	 */
+	private static void createStateAndTransaction(Cfsm cfsm, Grammar g, State state) throws CfsmException {
+		checkShiftReduce(state);
 		if(cfsm.addState(state)) {
 			State destState = null;
 			for(Terminal t : g.getTerminals()) {
@@ -36,7 +56,7 @@ public class CfsmUtils {
 					destState = cfsm.getInnerSate(destState);
 					Transition tr = new Transition(t, state, destState);
 					cfsm.addTransition(tr);
-					createStateAndTransanction(cfsm, g, destState);
+					createStateAndTransaction(cfsm, g, destState);
 				}
 			}
 			
@@ -45,7 +65,7 @@ public class CfsmUtils {
 				destState = cfsm.getInnerSate(destState);
 				Transition tr = new Transition(Grammar.END_LINE, state, destState);
 				cfsm.addTransition(tr);
-				createStateAndTransanction(cfsm, g, destState);
+				createStateAndTransaction(cfsm, g, destState);
 			}
 			
 			for(NonTerminal nt : g.getNonTerminals()) {
@@ -54,26 +74,32 @@ public class CfsmUtils {
 					destState = cfsm.getInnerSate(destState);
 					Transition tr = new Transition(nt, state, destState);
 					cfsm.addTransition(tr);
-					createStateAndTransanction(cfsm, g, destState);
+					createStateAndTransaction(cfsm, g, destState);
 				}
 			}
 			
 		}
 	}
 	
-	private static void checkShiftReduce(State state, Grammar g) throws CfsmException {
+	/**
+	 * Check if a state present an shift-reduce problem that cannot eliminate. 
+	 *
+	 * @param state the state to check
+	 * @throws CfsmException the cfsm exception
+	 */
+	private static void checkShiftReduce(State state) throws CfsmException {
 		List<Terminal> shiftTerminals = new ArrayList<Terminal>();
 		List<Terminal> reduceTerminals = new ArrayList<Terminal>();
 		for(Candidate c: state.getCandidates()) {
 			if(c.getCandidateElement() == null) { //Reduction
 				if(!c.getProduction().getLeft().equals(Grammar.AXIOM)) {
-					NonTerminal nt = g.findNonTerminl(c.getProduction().getLeft().getLabel());
+					NonTerminal nt = c.getProduction().getLeft();  
 					reduceTerminals.addAll(nt.getFollow());
 				}
 			} else if(c.getCandidateElement() instanceof Terminal) { //Terminal shift
 				shiftTerminals.add((Terminal) c.getCandidateElement());
 			} else { //Non Terminal Shift
-				NonTerminal nt = g.findNonTerminl(c.getCandidateElement().getLabel());
+				NonTerminal nt = (NonTerminal) c.getCandidateElement();
 				shiftTerminals.addAll(nt.getFirst());
 			}
 		}
@@ -87,6 +113,15 @@ public class CfsmUtils {
 		}
 	}
 	
+	/**
+	 * Gets the destination state from the input state according to the element e.
+	 *
+	 * @param state the start state
+	 * @param e the element that produce a transaction
+	 * @param g the grammar
+	 * @return the destination state
+	 * @throws CfsmException the cfsm exception
+	 */
 	private static State getDestState(State state, Element e,
 			Grammar g) throws CfsmException {
 		State newState = null;
@@ -104,6 +139,14 @@ public class CfsmUtils {
 		return newState;
 	}
 	
+	/**
+	 * Closure. Performs the closure of a candidate recursively
+	 *
+	 * @param closure the closure list
+	 * @param g the grammar
+	 * @param c the input candidate
+	 * @throws CfsmException the cfsm exception
+	 */
 	public static void closure(List<Candidate> closure, Grammar g, Candidate c) throws CfsmException {
 		closure.add(c);
 		if(c.getCandidateElement() instanceof NonTerminal) {
