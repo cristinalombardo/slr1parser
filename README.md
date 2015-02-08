@@ -1,7 +1,7 @@
 # slr1parser
 Provide a parser implementation of a SLR1 grammar in Extended Backus–Naur Form.
 
-This program convert a input file that contains a grammar in Extended Backus–Naur Form. 
+This program convert an input file that contains a grammar in Extended Backus–Naur Form. 
 The program produce an ActionGoto table and if you insert a string the program verify if the input string is a string of the language.
 
 ## Execute
