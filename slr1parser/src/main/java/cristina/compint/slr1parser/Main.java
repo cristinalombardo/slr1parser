@@ -46,7 +46,7 @@ public class Main {
 			URL url = Main.class.getResource("/ebnfexample.txt");
 			/*
 			 * Comments if you run the project into eclipse
-			 *
+			 */
 			Map<String, String> env = new HashMap<>(); 
 			env.put("create", "true");
 			try {
@@ -54,7 +54,7 @@ public class Main {
 			} catch (IOException e) {
 				e.printStackTrace();
 			} 
-			**/
+			/**/
 			grammarPath = Paths.get(url.toURI());
 		}
 
