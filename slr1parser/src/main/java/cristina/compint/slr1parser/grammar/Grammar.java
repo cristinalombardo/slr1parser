@@ -9,7 +9,7 @@ import java.util.Set;
 public class Grammar implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	public static final String INTERNAL_NON_TERMINAL = "Â£";
+	public static final String INTERNAL_NON_TERMINAL = "£";
 	public static final Terminal EPS = new Terminal(">EPS<");
 	public static final Terminal END_LINE = new Terminal(">$<");
 	public static final NonTerminal AXIOM = new NonTerminal("<AX>"); 
