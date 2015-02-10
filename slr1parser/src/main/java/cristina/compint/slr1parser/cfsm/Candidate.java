@@ -50,12 +50,12 @@ public class Candidate implements Serializable {
 		for(int i=0; i< this.production.getRight().size(); i++) {
 			Element e = this.production.getRight().get(i);
 			if( i == index)
-				sb.append("° ");
+				sb.append("\u00ba ");
 			sb.append(e.toString());
 			sb.append(" ");
 		}
 		if(index == this.production.getRight().size())
-			sb.append("°");
+			sb.append("\u00ba");
 		return sb.toString();
 	}
 
