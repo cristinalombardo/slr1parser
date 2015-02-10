@@ -81,7 +81,7 @@ public class GrammarUtils {
 		String ntLabel = leftSide.substring(1, leftSide.length() - 1);
 		if(!NonTerminal.NON_TERMINAL_PATTERN.matcher(ntLabel).matches())
 			throw new GrammarSyntaxException("Unespected non teminal " + ntLabel, line);
-		NonTerminal leftNt = grammar.findNonTerminl(ntLabel);
+		NonTerminal leftNt = grammar.findNonTerminal(ntLabel);
 		if(leftNt == null){
 				leftNt = new NonTerminal(ntLabel);
 				grammar.addNonTerminal(leftNt);
@@ -126,7 +126,7 @@ public class GrammarUtils {
 				if(!NonTerminal.NON_TERMINAL_PATTERN.matcher(ntLabel).matches())
 					throw new GrammarSyntaxException("Unespected non teminal " + ntLabel, rightSide);
 
-				NonTerminal nt = grammar.findNonTerminl(ntLabel);
+				NonTerminal nt = grammar.findNonTerminal(ntLabel);
 				if(nt == null) {
 					nt = new NonTerminal(ntLabel);
 					grammar.addNonTerminal(nt);

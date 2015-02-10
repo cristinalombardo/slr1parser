@@ -84,7 +84,7 @@ public class Grammar implements Serializable {
 		return nt;
 	}
 	
-	public NonTerminal findNonTerminl(String label) {
+	public NonTerminal findNonTerminal(String label) {
 		NonTerminal nt = null;
 		for(NonTerminal n: this.nonTerminals) {
 			if(n.getLabel().equals(label)) {
