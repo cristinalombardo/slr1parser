@@ -38,8 +38,9 @@ public class State implements Serializable {
 	
 	public void addAll(List<Candidate> closure) {
 		for(Candidate c:closure) {
-			if(!candidates.contains(c))
+			if(!candidates.contains(c)) {
 				candidates.add(c);
+			}
 		}
 	}
 

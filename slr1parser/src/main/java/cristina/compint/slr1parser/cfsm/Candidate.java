@@ -40,7 +40,7 @@ public class Candidate implements Serializable {
 		Element e = this.production.getRight().get(index);
 		if(e.equals(Grammar.EPS))
 			return null; //Reduction candidate 
-		return this.production.getRight().get(index);
+		return e;
 	}
 	
 	@Override

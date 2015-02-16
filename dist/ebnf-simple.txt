@@ -13,6 +13,6 @@
 # Grammar
 
 1: <E> ::= <X> {(+|-) <X>}
-2: <X> ::= a|b|c
+2: <X> ::= a|b|v
 
 #Example of input string a+b-a-b

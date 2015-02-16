@@ -43,9 +43,7 @@ public class ActionGotoUtils {
 							Action a = new ActionReduce(c.getProduction());
 							table.addAction(s, t, a);
 						}
-					}
-					if(c.getIndex() > 0 &&
-							Grammar.END_LINE.equals(c.getProduction().getRight().get(c.getIndex() - 1))) {
+					} else {
 						table.setAcceptState(s);
 					}
 				}

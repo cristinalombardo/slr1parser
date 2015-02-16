@@ -74,37 +74,18 @@ public class Main {
 					.filter(x -> !x.startsWith("#") && !x.isEmpty())
 					.collect(Collectors.toList());
 
-			//Step 3: Extract grammar from EBNF
+			//Step 3: Extract grammar with First and Follow set from EBNF
 			Grammar g =	GrammarUtils.convertToGrammar(grammarLines);
 
-
-			System.out.println("\nNon terminals list: " + g.getNonTerminals());
-			System.out.println("Terminals list: " + g.getTerminals());
-
-
-			System.out.println("\nGrammar Productions: \n" + g.getAxiomProduction());
-
-			for(Production p: g.getProductions()) {
-				System.out.println(p);
-			}
-
+			printGrammar(g);
 			System.out.println("\nGrammar done. Press enter to contiune...");
 			scan.nextLine();
-
-			System.out.println("\nFirst set of non teminals:");
-			for(NonTerminal nt: g.getNonTerminals()) {
-				System.out.println(nt.toString() + "\t:\t" + nt.getFirst().toString()); 
-			}
-
-			System.out.println("\nFollow set of non teminals:");
-			for(NonTerminal nt: g.getNonTerminals()) {
-				if(nt.getFollow() != null)
-					System.out.println(nt.toString() + "\t:\t" + nt.getFollow().toString()); 
-			}
-
+			
+			printFirsAndFollow(g);
 			System.out.println("\nFollow and First set done. Press enter to contiune...");
 			scan.nextLine();
-
+			
+			//Step 4: Create Characteristic Finite State Machine 
 			Cfsm cfsm = CfsmUtils.createCfsm(g);
 			System.out.println("Cfsm");
 
@@ -113,63 +94,27 @@ public class Main {
 			System.out.println("\nCarateristich finite state machine done. Press enter to contiune...");
 			scan.nextLine();
 
+			//Step 5: Create ActionGoto Table
 			ActionGotoTable actionGotoTable = ActionGotoUtils.createTable(cfsm);
 			
+			printActionGoto(g, actionGotoTable);
 			
-			for(Terminal t: g.getTerminals()) {
-				if(Grammar.EPS.equals(t))
-					continue;
-				System.out.print("\t|" + t + "\t");
-			}
-			System.out.print("\t|$\t");
-			for(NonTerminal nt: g.getNonTerminals()) {
-				System.out.print("\t|" + nt);
-			}
-
-			for(State s: actionGotoTable.getStates()) {
-				System.out.println("\n");
-				System.out.print("S" + s.getState());
-				if(s.equals(actionGotoTable.getAcceptState())) {
-					System.out.print("\t| Accept");
-					continue;
-				}
-				for(Terminal t: g.getTerminals()) {
-					if(Grammar.EPS.equals(t))
-						continue;
-					System.out.print("\t|");
-					Action a = actionGotoTable.getAction(s, t);
-					String aString = (a!=null)?a.toString():"";
-
-					System.out.print(aString + ((aString.length() < 7)?"\t":""));
-				}
-
-				System.out.print("\t|");
-				Action a = actionGotoTable.getAction(s, Grammar.END_LINE);
-				String aString = (a!=null)?a.toString():"";
-
-				System.out.print(aString + ((aString.length() < 7)?"\t":""));
-				for(NonTerminal nt: g.getNonTerminals()) {
-					System.out.print("\t|");
-					Goto gt = actionGotoTable.getGoto(s, nt);
-					if(gt!=null) {
-						System.out.print(gt);
-					}
-				}
-
-			}
-
 			System.out.println("\nActionGoto table done.");
 			
+			//Step 6: String parsing
 			while(true) {
 				System.out.print("Write \"exit\" to exit.\nInsert a string to parse and press enter: ");
 				String toCheck = scan.nextLine();
 				if(toCheck.equals("exit"))
 					break;
-				System.out.println("\n Parsing string: " + toCheck);
-				if(Parser.checkString(toCheck, actionGotoTable))
+				System.out.println("\nParsing string: " + toCheck);
+				if(Parser.checkString(toCheck, actionGotoTable)) {
 					System.out.println("\nString \"" + toCheck +"\" Checked.");
-				else
+				} else {
 					System.out.println("\nString \"" + toCheck +"\" does not Checked.");
+				}
+				
+				
 			}
 
 		} catch (IOException e) {
@@ -184,9 +129,78 @@ public class Main {
 		}finally {
 			scan.close();	
 		}
-
-
-
 	}
 
+	private static void printGrammar(Grammar g) {
+		
+		//Print Terminal and NonTerminal Set
+		System.out.println("\nNon terminals list: " + g.getNonTerminals());
+		System.out.println("Terminals list: " + g.getTerminals());
+
+
+		System.out.println("\nGrammar Productions: \n" + g.getAxiomProduction());
+		//Print grammar's productions
+		for(Production p: g.getProductions()) {
+			System.out.println(p);
+		}
+		
+	}
+	
+	private static void printFirsAndFollow(Grammar g) {
+		System.out.println("\nFirst set of non terminals:");
+		for(NonTerminal nt: g.getNonTerminals()) {
+			System.out.println(nt.toString() + "\t:\t" + nt.getFirst().toString()); 
+		}
+
+		System.out.println("\nFollow set of non terminals:");
+		for(NonTerminal nt: g.getNonTerminals()) {
+			if(nt.getFollow() != null)
+				System.out.println(nt.toString() + "\t:\t" + nt.getFollow().toString()); 
+		}
+	}
+
+	private static void printActionGoto(Grammar g,
+			ActionGotoTable actionGotoTable) {
+		for(Terminal t: g.getTerminals()) {
+			if(Grammar.EPS.equals(t))
+				continue;
+			System.out.print("\t|" + t + "\t");
+		}
+		System.out.print("\t|$\t");
+		for(NonTerminal nt: g.getNonTerminals()) {
+			System.out.print("\t|" + nt);
+		}
+
+		for(State s: actionGotoTable.getStates()) {
+			System.out.println("\n");
+			System.out.print("S" + s.getState());
+			if(s.equals(actionGotoTable.getAcceptState())) {
+				System.out.print("\t| Accept");
+				continue;
+			}
+			for(Terminal t: g.getTerminals()) {
+				if(Grammar.EPS.equals(t))
+					continue;
+				System.out.print("\t|");
+				Action a = actionGotoTable.getAction(s, t);
+				String aString = (a!=null)?a.toString():"";
+
+				System.out.print(aString + ((aString.length() < 7)?"\t":""));
+			}
+
+			System.out.print("\t|");
+			Action a = actionGotoTable.getAction(s, Grammar.END_LINE);
+			String aString = (a!=null)?a.toString():"";
+
+			System.out.print(aString + ((aString.length() < 7)?"\t":""));
+			
+			for(NonTerminal nt: g.getNonTerminals()) {
+				System.out.print("\t|");
+				Goto gt = actionGotoTable.getGoto(s, nt);
+				if(gt!=null) {
+					System.out.print(gt);
+				}
+			}
+		}
+	}
 }

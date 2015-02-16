@@ -29,11 +29,13 @@ public class Parser {
 
 		stack.push(new StackElement(table.getStates().get(0), Grammar.END_LINE));
 		int index = 0;
+		//Transforms input string into Terminal list
 		List<Terminal> terminalString = new ArrayList<Terminal>();
 		for(char c: s.toCharArray()) {
 			terminalString.add(new Terminal(String.valueOf(c)));
 		}
 		terminalString.add(Grammar.END_LINE);
+		
 		Formatter formatter = new Formatter();
 		formatter.format("%1$50s | %2$10s | %3$1s ", "STACK", "INPUT", "ACTION");
 		System.out.println(formatter.toString());

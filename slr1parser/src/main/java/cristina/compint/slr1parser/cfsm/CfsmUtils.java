@@ -27,10 +27,15 @@ public class CfsmUtils {
 	public static Cfsm createCfsm(Grammar g) throws CfsmException {
 		Cfsm cfsm = new Cfsm();
 
+		//Create axiom candidate with 0 index
 		Candidate firstCandidate = new Candidate(g.getAxiomProduction(), 0);
-		State firstState = new State();
+		
+		//Make the closure of first candidate
 		List<Candidate> closureList = new ArrayList<Candidate>();
 		closure(closureList, g, firstCandidate);
+		
+		//Add the closure to Cfsm first state
+		State firstState = new State();
 		firstState.addAll(closureList);
 		
 		createStateAndTransaction(cfsm, g, firstState);
@@ -47,7 +52,10 @@ public class CfsmUtils {
 	 * @throws CfsmException the cfsm exception
 	 */
 	private static void createStateAndTransaction(Cfsm cfsm, Grammar g, State state) throws CfsmException {
+		
+		//If there are some non-resolvable shift-reduce ambiguity throw exception  
 		checkShiftReduce(state);
+		
 		if(cfsm.addState(state)) {
 			State destState = null;
 			for(Terminal t : g.getTerminals()) {
@@ -77,7 +85,6 @@ public class CfsmUtils {
 					createStateAndTransaction(cfsm, g, destState);
 				}
 			}
-			
 		}
 	}
 	
@@ -128,8 +135,9 @@ public class CfsmUtils {
 		for(Candidate c: state.getCandidates()) {
 			if(c.getCandidateElement() != null && c.getCandidateElement().equals(e)) {
 				Candidate newCandidate = new Candidate(c.getProduction(), c.getIndex() + 1);
-				if(newState == null)
+				if(newState == null) {
 					newState = new State();
+				}
 				List<Candidate> closureList = new ArrayList<Candidate>();
 				closure(closureList, g, newCandidate);
 				newState.addAll(closureList);
