@@ -270,10 +270,10 @@ public class GrammarUtils {
 	 */
 	public static void calculateFirstAndFollow(Grammar grammar) {
 		for(NonTerminal nt: grammar.getNonTerminals()) {
-			nt.setFirst(first(grammar, nt));
+			first(grammar, nt);
 		}
 		for(NonTerminal nt: grammar.getNonTerminals()) {
-			nt.setFollow(follow(grammar, nt, new ArrayList<NonTerminal>()));
+			follow(grammar, nt, new ArrayList<NonTerminal>());
 		}
 	}
 
@@ -282,11 +282,10 @@ public class GrammarUtils {
 	 *
 	 * @param grammar the grammar
 	 * @param nt the non-terminal 
-	 * @return the first set
 	 */
-	public static Set<Terminal> first(Grammar grammar, NonTerminal nt) {
+	public static void first(Grammar grammar, NonTerminal nt) {
 		if ( nt.getFirst() != null )
-			return nt.getFirst();
+			return;
 
 		Set<Terminal> firstSet = new HashSet<Terminal>();
 		for (int i = 0; i < grammar.getProductions().size(); i++) {
@@ -300,7 +299,7 @@ public class GrammarUtils {
 					} else {
 						NonTerminal nt1 = (NonTerminal) e;
 						if (nt1.getFirst() == null) {
-							nt1.setFirst(first(grammar, nt1));
+							first(grammar, nt1);
 						}
 						Set<Terminal> nt1First = new HashSet<Terminal>(nt1.getFirst()); 
 						if(j < (p.getRight().size() -1)) {
@@ -314,7 +313,7 @@ public class GrammarUtils {
 				}
 			}
 		}
-		return firstSet;
+		nt.setFirst(firstSet);
 	}
 
 	/**
@@ -325,9 +324,9 @@ public class GrammarUtils {
 	 * @param trace to prevent the infinite loop
 	 * @return the follow set
 	 */
-	public static Set<Terminal> follow(Grammar grammar, NonTerminal nt, List<NonTerminal> trace) {
+	public static void follow(Grammar grammar, NonTerminal nt, List<NonTerminal> trace) {
 		if ( nt.getFollow() != null)
-			return nt.getFollow();
+			return;
 
 
 		Set<Terminal> followSet = new HashSet<Terminal>();
@@ -337,7 +336,8 @@ public class GrammarUtils {
 					followSet.addAll(ntrace.getFollow());
 				}
 			}
-			return followSet;
+			nt.setFollow(followSet);
+			return;
 		}
 		trace.add(nt);
 
@@ -354,7 +354,7 @@ public class GrammarUtils {
 						if(nt1.equals(nt))
 							continue;
 						if( nt1.getFollow() == null) {
-							nt1.setFollow(follow(grammar, nt1, trace));
+							follow(grammar, nt1, trace);
 						}
 
 						followSet.addAll(nt1.getFollow());
@@ -375,7 +375,7 @@ public class GrammarUtils {
 										if(nt2.equals(nt))
 											continue;
 										if( nt2.getFollow() == null) {
-											nt2.setFollow(follow(grammar, nt1, trace));
+											follow(grammar, nt1, trace);
 										}
 										followSet.addAll(nt2.getFollow());
 									}
@@ -388,7 +388,7 @@ public class GrammarUtils {
 				}
 			}
 		}
-		return followSet;
+		nt.setFollow(followSet);
 
 	}
 }

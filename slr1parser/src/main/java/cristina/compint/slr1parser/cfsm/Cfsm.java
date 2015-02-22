@@ -48,9 +48,9 @@ public class Cfsm implements Serializable{
 		return isInsert;
 	}
 	
-	public State getInnerSate(State s) {
+	public State getInnerState(State s) {
 		int index = this.states.indexOf(s);
-		if(index > 0)
+		if(index >= 0)
 			return this.states.get(index);
 		return s;
 	}

@@ -61,7 +61,7 @@ public class CfsmUtils {
 			for(Terminal t : g.getTerminals()) {
 				destState = getDestState(state, t, g);
 				if(destState!= null){
-					destState = cfsm.getInnerSate(destState);
+					destState = cfsm.getInnerState(destState);
 					Transition tr = new Transition(t, state, destState);
 					cfsm.addTransition(tr);
 					createStateAndTransaction(cfsm, g, destState);
@@ -70,7 +70,7 @@ public class CfsmUtils {
 			
 			destState = getDestState(state, Grammar.END_LINE, g);
 			if(destState!= null){
-				destState = cfsm.getInnerSate(destState);
+				destState = cfsm.getInnerState(destState);
 				Transition tr = new Transition(Grammar.END_LINE, state, destState);
 				cfsm.addTransition(tr);
 				createStateAndTransaction(cfsm, g, destState);
@@ -79,7 +79,7 @@ public class CfsmUtils {
 			for(NonTerminal nt : g.getNonTerminals()) {
 				destState = getDestState(state, nt, g);
 				if(destState != null) {
-					destState = cfsm.getInnerSate(destState);
+					destState = cfsm.getInnerState(destState);
 					Transition tr = new Transition(nt, state, destState);
 					cfsm.addTransition(tr);
 					createStateAndTransaction(cfsm, g, destState);

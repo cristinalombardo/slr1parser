@@ -21,14 +21,14 @@ public class Parser {
 	 *
 	 * @param s the string to parse
 	 * @param table the ActionGoto Table
-	 * @return true if the string s in a valid string
+	 * @return true if the string s is a valid string
 	 */
 	public static boolean checkString(String s, ActionGotoTable table) {
 		boolean isChecked = false;
 		Stack<StackElement> stack = new Stack<StackElement>();
 
 		stack.push(new StackElement(table.getStates().get(0), Grammar.END_LINE));
-		int index = 0;
+		
 		//Transforms input string into Terminal list
 		List<Terminal> terminalString = new ArrayList<Terminal>();
 		for(char c: s.toCharArray()) {
@@ -40,8 +40,8 @@ public class Parser {
 		formatter.format("%1$50s | %2$10s | %3$1s ", "STACK", "INPUT", "ACTION");
 		System.out.println(formatter.toString());
 		formatter.close();
-		
-		while(index != terminalString.size()) {
+		int index = 0;
+		while(index < terminalString.size()) {
 			Terminal t = terminalString.get(index);
 			Action a = table.getAction(stack.peek().getState(), t);
 			printLine(stack, terminalString, index, a);
@@ -53,6 +53,7 @@ public class Parser {
 				index++;
 			} else {
 				ActionReduce ar = (ActionReduce) a;
+				
 				for(int i = ar.getProduction().getRight().size()-1; i >= 0; i--) {
 					Element e = ar.getProduction().getRight().get(i);
 					if(Grammar.EPS.equals(e))
@@ -61,6 +62,7 @@ public class Parser {
 						return false;
 					}
 				}
+				
 				Goto gt = table.getGoto(stack.peek().getState(), ar.getProduction().getLeft());
 				stack.push(new StackElement(gt.getDestState(), ar.getProduction().getLeft()));
 				
@@ -103,7 +105,6 @@ public class Parser {
 		for(int i = index; i < terminalString.size(); i++) {
 			inputSb.append(terminalString.get(i));
 		}
-		
 		Formatter formatter = new Formatter();
 		formatter.format("%1$50s | %2$10s | %3$1s ", stackSb.toString(), inputSb.toString(), (a!=null)?a.toString():"");
 		System.out.println(formatter.toString());
