@@ -299,9 +299,13 @@ public class GrammarUtils {
 					} else {
 						NonTerminal nt1 = (NonTerminal) e;
 						if (nt1.getFirst() == null) {
-							first(grammar, nt1);
+							if(nt1.equals(nt)) {
+								nt1.setFirst(new HashSet<Terminal>());
+							} else {
+								first(grammar, nt1);
+							}
 						}
-						Set<Terminal> nt1First = new HashSet<Terminal>(nt1.getFirst()); 
+						Set<Terminal> nt1First = new HashSet<Terminal>(); 
 						if(j < (p.getRight().size() -1)) {
 							nt1First.remove(Grammar.EPS);
 						}

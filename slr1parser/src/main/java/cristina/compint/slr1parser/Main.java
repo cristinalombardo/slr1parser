@@ -1,5 +1,6 @@
 package cristina.compint.slr1parser;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.logging.SimpleFormatter;
 import java.util.stream.Collectors;
 
 import cristina.compint.slr1parser.cfsm.Cfsm;
@@ -31,6 +33,8 @@ import cristina.compint.slr1parser.parser.Goto;
 import cristina.compint.slr1parser.parser.Parser;
 
 public class Main {
+	
+	private static final SimpleFormatter FORMATTER = new SimpleFormatter();
 
 	public static void main(String[] args) throws MalformedURLException, URISyntaxException {
 
@@ -117,15 +121,20 @@ public class Main {
 				
 			}
 
-		} catch (IOException e) {
-			e.printStackTrace();
+		
 		} catch (GrammarSyntaxException e) {
 			System.out.println("Parser error: check the input file.");
 			System.out.println("Error line: " + e.getLine());
 			System.out.println("Error message: " + e.getMessage());
 		} catch (CfsmException e) {
-			System.out.println("Error during CFSM creation");
-			System.out.println(e.getMessage());
+			System.out.println("Error during CFSM creation see error.txt for detail");
+			try {
+				Files.write(Paths.get("./error.txt"), e.getMessage().getBytes());
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}finally {
 			scan.close();	
 		}
@@ -161,46 +170,67 @@ public class Main {
 
 	private static void printActionGoto(Grammar g,
 			ActionGotoTable actionGotoTable) {
+		StringBuilder sb = new StringBuilder();
+		StringBuilder sbFile = new StringBuilder();
+		sbFile.append("state");
 		for(Terminal t: g.getTerminals()) {
 			if(Grammar.EPS.equals(t))
 				continue;
-			System.out.print("\t|" + t + "\t");
+			sb.append("\t|" + t + "\t");
+			sbFile.append("," + t);
 		}
-		System.out.print("\t|$\t");
+		sb.append("\t|$\t");
+		sbFile.append(",$");
 		for(NonTerminal nt: g.getNonTerminals()) {
-			System.out.print("\t|" + nt);
+			sb.append("\t|" + nt);
+			sbFile.append("," + nt);
 		}
 
 		for(State s: actionGotoTable.getStates()) {
-			System.out.println("\n");
-			System.out.print("S" + s.getState());
+			sb.append("\n\n");
+			sbFile.append("\n");
+			sb.append("S" + s.getState());
+			sbFile.append("S" + s.getState());
 			if(s.equals(actionGotoTable.getAcceptState())) {
-				System.out.print("\t| Accept");
+				sb.append("\t| Accept");
+				sbFile.append(",Accept");
 				continue;
 			}
 			for(Terminal t: g.getTerminals()) {
 				if(Grammar.EPS.equals(t))
 					continue;
-				System.out.print("\t|");
+				sb.append("\t|");
+				sbFile.append(",");
 				Action a = actionGotoTable.getAction(s, t);
 				String aString = (a!=null)?a.toString():"";
 
-				System.out.print(aString + ((aString.length() < 7)?"\t":""));
+				sb.append(aString + ((aString.length() < 7)?"\t":""));
+				sbFile.append(aString);
 			}
 
-			System.out.print("\t|");
+			sb.append("\t|");
+			sbFile.append(",");
 			Action a = actionGotoTable.getAction(s, Grammar.END_LINE);
 			String aString = (a!=null)?a.toString():"";
 
-			System.out.print(aString + ((aString.length() < 7)?"\t":""));
-			
+			sb.append(aString + ((aString.length() < 7)?"\t":""));
+			sbFile.append(aString);
 			for(NonTerminal nt: g.getNonTerminals()) {
-				System.out.print("\t|");
+				sb.append("\t|");
+				sbFile.append(",");
 				Goto gt = actionGotoTable.getGoto(s, nt);
 				if(gt!=null) {
-					System.out.print(gt);
+					sb.append(gt);
+					sbFile.append(gt);
 				}
 			}
+		}
+		System.out.println(sb);
+		try {
+			Files.write(Paths.get("./OUTPUT.TXT"), sbFile.toString().getBytes());
+			System.out.println("\nOUTPUT.TXT created");
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }
