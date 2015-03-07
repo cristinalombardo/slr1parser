@@ -4,13 +4,12 @@
 # 	\ :Escape char
 # 	<E>, <F>, <T>, <X>: Non Terminal 
 # 	i, +, -, ^: Terminals
-# 	\\: Escaped \ used as terminal
+# 	\\: Escaped / used as terminal
 # 	\(: Special Char ( escaped used as terminal
 # 	() [] {} |: Special chars
+
 ##########
+
 # Grammar
 
-1: <E> ::= <X> {(+|-) <X>}
-2: <X> ::= a|b|c
-
-#1: <E> ::= 0|!<E>|<E>-x
+1: <E> ::= 0|!<E>|<E>-x

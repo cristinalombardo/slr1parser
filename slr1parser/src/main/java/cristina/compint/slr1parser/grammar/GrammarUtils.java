@@ -305,7 +305,7 @@ public class GrammarUtils {
 								first(grammar, nt1);
 							}
 						}
-						Set<Terminal> nt1First = new HashSet<Terminal>(); 
+						Set<Terminal> nt1First = new HashSet<Terminal>(nt1.getFirst()); 
 						if(j < (p.getRight().size() -1)) {
 							nt1First.remove(Grammar.EPS);
 						}

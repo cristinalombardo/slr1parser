@@ -1,6 +1,5 @@
 package cristina.compint.slr1parser;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -13,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.logging.SimpleFormatter;
 import java.util.stream.Collectors;
 
 import cristina.compint.slr1parser.cfsm.Cfsm;
@@ -34,8 +32,6 @@ import cristina.compint.slr1parser.parser.Parser;
 
 public class Main {
 	
-	private static final SimpleFormatter FORMATTER = new SimpleFormatter();
-
 	public static void main(String[] args) throws MalformedURLException, URISyntaxException {
 
 		System.out.println("Usage: java -jar slr1parser.jar [grammar-file]\n"
@@ -50,7 +46,7 @@ public class Main {
 			URL url = Main.class.getResource("/ebnfexample.txt");
 			/*
 			 * Comments if you run the project into eclipse
-			 *
+			 */
 			Map<String, String> env = new HashMap<>(); 
 			env.put("create", "true");
 			try {
