@@ -1,21 +1,5 @@
 Unresolvable shift reduce problem for state: 
 S0: {
-	<AX>	->	° E >$< 
-	E	->	° T £1 
-	T	->	° F £3 
-	F	->	° X £5 
-	X	->	° ( E ) 
-	X	->	° £6 
-	£6	->	° Z £6 
-	Z	->	° 0 
-	Z	->	° 1 
-	Z	->	° 2 
-	Z	->	° 3 
-	Z	->	° 4 
-	Z	->	° 5 
-	Z	->	° 6 
-	Z	->	° 7 
-	Z	->	° 8 
-	Z	->	° 9 
-	£6	->	° >EPS< 
+	E	->	! E �
+	E	->	E � - x 
 }
